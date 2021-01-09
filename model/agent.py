@@ -6,10 +6,10 @@ from mesa_geo import GeoSpace
 import random
 
 
-class SchellingAgent(GeoAgent):
+class RegionAgent(GeoAgent):
 
-    def __init__(self, unique_id, model, shape, agent_type=None):
-        """Create a new Schelling agent.
+    def __init__(self, unique_id, model, shape, agent_type=None, area=None):
+        """Create a new Region agent.
 
         Args:
             unique_id: Unique identifier for the agent.
@@ -17,6 +17,10 @@ class SchellingAgent(GeoAgent):
         """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
+
+    def happy(self):
+        return int(self.SHAPE_AREA) % 2
+
 
     def step(self):
         """Advance agent one step."""
@@ -46,4 +50,4 @@ class SchellingAgent(GeoAgent):
             self.model.happy += 1
 
     def __repr__(self):
-        return "Agent " + str(self.unique_id)
+        return "Agent {} | {}".format(self.unique_id, self.NUTS_ID)"

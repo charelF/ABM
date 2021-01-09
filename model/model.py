@@ -7,12 +7,10 @@ import random
 from agent import *
 
 
-class SchellingModel(Model):
-    """Model class for the Schelling segregation model."""
+class RegionModel(Model):
+    """---"""
 
-    def __init__(self, density, minority_pc):
-        self.density = density
-        self.minority_pc = minority_pc
+    def __init__(self):
 
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
@@ -23,18 +21,20 @@ class SchellingModel(Model):
         self.running = True
 
         # Set up the grid with patches for every NUTS region
-        AC = AgentCreator(SchellingAgent, {"model": self})
+        AC = AgentCreator(RegionAgent, {"model": self})
         agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
         self.grid.add_agents(agents)
 
         # Set up agents
+        # for agent in agents:
+        #     if random.random() < self.density:
+        #         if random.random() < self.minority_pc:
+        #             agent.atype = 1
+        #         else:
+        #             agent.atype = 0
+        #         
         for agent in agents:
-            if random.random() < self.density:
-                if random.random() < self.minority_pc:
-                    agent.atype = 1
-                else:
-                    agent.atype = 0
-                self.schedule.add(agent)
+            self.schedule.add(agent)
 
     def step(self):
         """Run one step of the model.
