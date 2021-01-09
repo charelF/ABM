@@ -33,11 +33,11 @@ class RegionAgent(GeoAgent):
         neighbours = self.model.grid.get_neighbors(self)
         if neighbours:
             target = random.choice(neighbours)
-            self.wealth += 0.2 * self.wealth
-            target.wealth += 0.2 * target.wealth
+            self.wealth += random.random() * self.model.countries[self.country]["constituing_regions"]
+            target.wealth += random.random()  * target.model.countries[self.country]["constituing_regions"]
         
     def step(self):
-        if random.random() > 0.5:
+        if random.random() < self.model.countries[self.country]["aggressiveness"]:
             self.attack()
         else:
             self.trade()
