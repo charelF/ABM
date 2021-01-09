@@ -44,6 +44,7 @@ class RegionModel(Model):
 
 
     def step(self):
+        print("i run")
         """Run one step of the model.
 
         If All agents are happy, halt the model.
@@ -52,5 +53,5 @@ class RegionModel(Model):
         self.schedule.step()
         # self.datacollector.collect(self)
 
-        if self.test == self.schedule.get_agent_count():
-            self.running = False
+        # if self.test == self.schedule.get_agent_count():
+        #     self.running = False

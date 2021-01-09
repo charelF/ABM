@@ -37,9 +37,9 @@ def schelling_draw(agent):
     #     portrayal["color"] = "#123412"#"Red"
     # else:
     #     portrayal["color"] = "Blue"
-    np.random.seed(int(agent.aggressiveness*1000))
+    np.random.seed(hash(agent.country) % 10000)
     portrayal["color"] = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
-    print(portrayal["color"])
+    # print(portrayal["color"])
     return portrayal
 
 
