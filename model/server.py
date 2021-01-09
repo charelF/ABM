@@ -3,6 +3,7 @@ from mesa.visualization.modules import ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 from model import RegionModel
 from mesa_geo.visualization.MapModule import MapModule
+import numpy as np
 
 
 class HappyElement(TextElement):
@@ -14,7 +15,7 @@ class HappyElement(TextElement):
         pass
 
     def render(self, model):
-        return "Happy agents: " + str(model.happy)
+        return "Happy agents: " + str(model.test)
 
 
 model_params = {
@@ -30,12 +31,15 @@ def schelling_draw(agent):
     Portrayal Method for canvas
     """
     portrayal = dict()
-    if agent.atype is None:
-        portrayal["color"] = "Grey"
-    elif agent.atype == 0:
-        portrayal["color"] = "Red"
-    else:
-        portrayal["color"] = "Blue"
+    # if agent.country is None:
+    #     portrayal["color"] = "Grey"
+    # elif agent.country == "PL":
+    #     portrayal["color"] = "#123412"#"Red"
+    # else:
+    #     portrayal["color"] = "Blue"
+    np.random.seed(int(agent.aggressiveness*1000))
+    portrayal["color"] = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
+    print(portrayal["color"])
     return portrayal
 
 
