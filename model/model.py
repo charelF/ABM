@@ -8,15 +8,16 @@ from agent import *
 
 
 class RegionModel(Model):
-    """---"""
 
-    def __init__(self):
+    def __init__(self, density, minority_pc):
+
+        self.countries = {}
 
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
 
-        self.happy = 0
-        self.datacollector = DataCollector({"happy": "happy"})
+        self.test = 0
+        self.datacollector = DataCollector({"test": "test"})
 
         self.running = True
 
@@ -35,15 +36,21 @@ class RegionModel(Model):
         #         
         for agent in agents:
             self.schedule.add(agent)
+            agent.wealth = agent.SHAPE_AREA
+            agent.country = agent.NUTS_ID[0:2]
+            if agent.country not in self.countries.keys():
+                self.countries[agent.country] = random.random()
+            agent.aggressiveness = self.countries[agent.country]
+
 
     def step(self):
         """Run one step of the model.
 
         If All agents are happy, halt the model.
         """
-        self.happy = 0  # Reset counter of happy agents
+        self.test = 0  # Reset counter of happy agents
         self.schedule.step()
         # self.datacollector.collect(self)
 
-        if self.happy == self.schedule.get_agent_count():
+        if self.test == self.schedule.get_agent_count():
             self.running = False

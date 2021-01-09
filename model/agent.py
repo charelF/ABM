@@ -5,49 +5,40 @@ from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
 import random
 
-
 class RegionAgent(GeoAgent):
 
-    def __init__(self, unique_id, model, shape, agent_type=None, area=None):
+    def __init__(self, unique_id, model, shape):
         """Create a new Region agent.
 
         Args:
             unique_id: Unique identifier for the agent.
             agent_type: Indicator for the agent's type (minority=1, majority=0)
         """
+
         super().__init__(unique_id, model, shape)
-        self.atype = agent_type
+        self.wealth = None
+        self.country = None
+        self.alliance = None
+        self.aggressiveness = None
 
-    def happy(self):
-        return int(self.SHAPE_AREA) % 2
-
-
+    def attack(self):
+        neighbours = self.model.grid.get_neighbors(self)
+        target = random.choice(neighbours)
+        if self.wealth > target.wealth:
+            # attack succesful
+            target.country = self.country
+    
+    def trade(self):
+        neighbours = self.model.grid.get_neighbors(self)
+        target = random.choice(neighbours)
+        self.wealth += 0.2 * self.wealth
+        target.wealth += 0.2 * target.wealth
+        
     def step(self):
-        """Advance agent one step."""
-        similar = 0
-        different = 0
-        neighbors = self.model.grid.get_neighbors(self)
-        if neighbors:
-            for neighbor in neighbors:
-                if neighbor.atype is None:
-                    continue
-                elif neighbor.atype == self.atype:
-                    similar += 1
-                else:
-                    different += 1
-
-        # If unhappy, move:
-        if similar < different:
-            # Select an empty region
-            empties = [a for a in self.model.grid.agents if a.atype is None]
-            # Switch atypes and add/remove from scheduler
-            new_region = random.choice(empties)
-            new_region.atype = self.atype
-            self.model.schedule.add(new_region)
-            self.atype = None
-            self.model.schedule.remove(self)
+        if random.random() > 0.5:
+            self.attack()
         else:
-            self.model.happy += 1
+            self.trade()
 
     def __repr__(self):
-        return "Agent {} | {}".format(self.unique_id, self.NUTS_ID)"
+        return "Agent {} | {}".format(self.unique_id, self.NUTS_ID)
