@@ -3,12 +3,14 @@ from mesa import Model
 from mesa.time import RandomActivation
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
+from simulate_battle import *
 import random
 
 
 class SchellingAgent(GeoAgent):
-
-    def __init__(self, unique_id, model, shape, agent_type=None):
+    def __init__(
+        self, unique_id, model, shape, agent_type=None, wealth=0, army=0,
+    ):
         """Create a new Schelling agent.
 
         Args:
@@ -17,33 +19,60 @@ class SchellingAgent(GeoAgent):
         """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
+        self.wealth = wealth
+        self.army = army
+
+    # def transfer_troops(self):
+    #     available_troops = self.model.armies[self.atype][1:]
+
+    #     # for region_id in available_troops:
+    #     troops = self.agents
+    #     print(troops)
 
     def step(self):
         """Advance agent one step."""
-        similar = 0
-        different = 0
-        neighbors = self.model.grid.get_neighbors(self)
-        if neighbors:
-            for neighbor in neighbors:
-                if neighbor.atype is None:
-                    continue
-                elif neighbor.atype == self.atype:
-                    similar += 1
-                else:
-                    different += 1
 
-        # If unhappy, move:
-        if similar < different:
-            # Select an empty region
-            empties = [a for a in self.model.grid.agents if a.atype is None]
-            # Switch atypes and add/remove from scheduler
-            new_region = random.choice(empties)
-            new_region.atype = self.atype
-            self.model.schedule.add(new_region)
-            self.atype = None
-            self.model.schedule.remove(self)
-        else:
-            self.model.happy += 1
+        neighbors = self.model.grid.get_neighbors(self)
+        recources = 0
+
+        for ag in self.model.grid.agents:
+            if ag.atype == self.atype:
+                recources += 1
+
+        self.income = recources
+        self.upkeep = self.army * 0.5
+
+        self.change = self.income - self.upkeep
+
+        self.wealth += self.change
+
+        self.happiness = 1 / recources
+
+        self.hostility = (self.happiness - self.model.min_happy) / (
+            self.model.max_happy - self.model.min_happy
+        )
+
+        if self.wealth < 0:
+            self.army -= 1
+
+        elif self.wealth > 0 and self.change > 0.5:
+            self.army += 1
+
+        if neighbors:
+            # self.transfer_troops()
+            for neighbor in neighbors:
+                if 1 < self.army > neighbor.army and self.atype != neighbor.atype:
+                    outcome = battle(self.army - 1, neighbor.army)
+
+                    # Battle won
+                    if outcome > 0:
+                        neighbor.atype = self.atype
+                        neighbor.army = outcome
+                        self.army = 1
+
+                    else:
+                        self.army = 1
+                        neighbor.army = -outcome
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)
