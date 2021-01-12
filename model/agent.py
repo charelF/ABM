@@ -4,7 +4,8 @@ from mesa.time import RandomActivation
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
 import random
-
+import numpy as np
+from utilities import *
 
 class SchellingAgent(GeoAgent):
 
@@ -18,32 +19,85 @@ class SchellingAgent(GeoAgent):
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
 
+    def trade(self, neighbor):
+        self.country.wealth     += self.model.trade_reward
+        neighbor.country.wealth +=  self.model.trade_reward
+
+    def deficit(self, neighbor, deficit):
+        """
+        deficit indicates who deficits: 1 is neighbour
+        -1 is self.
+        """
+        self.country.wealth     -= deficit * self.model.deficit_reward
+        neighbor.country.wealth += deficit * self.model.deficit_reward                
+
+    def both_deficit(self, neighbor):
+
+        self.country.wealth     -= self.model.deficit_reward
+        neighbor.country.wealth -= self.model.deficit_reward  
+
+    def choose_interaction(self):
+        """
+        Chooses an interaction True means trade
+        and False means deficit
+        """
+        if self.country.strat == 1:
+            if self.country.attacked:
+                return True
+            else:
+                return False
+        elif self.country.strat == 2:
+            if random.random() < self.country.aggressiveness:
+                return True    
+            else:
+                return False
+
+
     def step(self):
         """Advance agent one step."""
-        similar = 0
-        different = 0
-        neighbors = self.model.grid.get_neighbors(self)
-        if neighbors:
-            for neighbor in neighbors:
-                if neighbor.atype is None:
-                    continue
-                elif neighbor.atype == self.atype:
-                    similar += 1
-                else:
-                    different += 1
 
-        # If unhappy, move:
-        if similar < different:
-            # Select an empty region
-            empties = [a for a in self.model.grid.agents if a.atype is None]
-            # Switch atypes and add/remove from scheduler
-            new_region = random.choice(empties)
-            new_region.atype = self.atype
-            self.model.schedule.add(new_region)
-            self.atype = None
-            self.model.schedule.remove(self)
-        else:
-            self.model.happy += 1
+        # See if country has interacted
+        if self.country.interacted:
+            return
+        # New code
+        try:
+            neighbor = random.choice(self.model.grid.get_neighbors(self))
+            neighbor.country.interacted = True
+                            
+            if neighbor.country == self.country:
+                self.trade(neighbor)
+                self.country.traded = True
+            else:
+                self.country.traded = self.choose_interaction()
+                neighbor.country.traded = neighbor.choose_interaction()
+
+                # Update nation params
+                if self.country.trade:
+                    self.country.trades += 1
+                if neighbor.country.trade:
+                    neighbor.country.trades += 1
+                
+                # Interaction
+                if self.country.trade and neighbor.country.trade:
+                    self.trade(neighbor)
+                    self.country.attacked = False
+                    self.neighbour.attacked = False
+                # Read doc of deficit to understand 1, -1 args.
+                elif self.country.trade and not neighbor.country.trade:
+                    self.country.attacked = True
+                    self.neighbour.attacked = False
+                    self.deficit(neighbor, 1)
+                elif self.country.trade and not neighbor.country.trade:
+                    self.country.attacked = False
+                    self.neighbour.attacked = True
+                    self.deficit(neighbor, -1)
+                else:
+                    self.country.attacked = True
+                    self.neighbour.attacked = True
+                    self.both_deficit(neighbor)
+        except:
+            # When country has no neighbors
+            self.country.traded = False
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)
