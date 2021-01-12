@@ -6,24 +6,37 @@ from mesa_geo import GeoSpace
 import random
 from agent import *
 import numpy as np
+import pprint
+
+class Nation(dict, GeoAgent):
+
+    def __init__(self, NUTS_ID):
+        self.identifier = NUTS_ID
+        self.areas = []
+        self.size = 1
+        self.interacted = False
+        self.traded = True
+        self.agressiveness = random.random()
+        self.color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
+        self.wealth = 10
+        self.trades = 0
+        dict.__init__(self)
 
 class SchellingModel(Model):
     """Model class for the Schelling segregation model."""
 
-    def __init__(self, interaction_chance, alliance_reward, war_reward, alliance_war_reward):
+    def __init__(self, tax, trade_reward, deficit_reward):
 
-        self.countries = {}
-
-        # Paramas
-        self.interaction_chance = interaction_chance
-        self.alliance_reward = alliance_reward
-        self.war_reward = war_reward
-        self.alliance_war_reward = alliance_war_reward
+        self.countries = []
+        self.trade_reward = trade_reward
+        self.deficit_reward = deficit_reward
+        # Params
+        self.tax = tax
+        self.round = 0
+        self.average_agressiveness = 0
 
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
-
-        self.test = 0
         self.datacollector = DataCollector({"test": "test"})
 
         self.running = True
@@ -34,35 +47,91 @@ class SchellingModel(Model):
         ###
         for agent in agents:
             self.schedule.add(agent)
-            agent.wealth = agent.SHAPE_AREA
-            agent.country = agent.NUTS_ID[0:2]
-            color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
-            if agent.country not in self.countries.keys():
-                self.countries[agent.country] = {
-                    "aggressiveness": random.random(),
-                    "constituing_regions": 1,
-                    "color": color,
-                    "wealth": 1,
-                    "rep": 0.5,
-                }
-
+            country_id = agent.NUTS_ID[0:2]
+            if country_id not in [country.identifier for country in self.countries]:
+                new_nation = Nation(country_id)
+                self.countries.append(new_nation)
+                agent.country = new_nation
             else:
-                self.countries[agent.country]["constituing_regions"] += 1
-                self.countries[agent.country]["wealth"] += 1
-        self.country_sizes = np.zeros(len(self.countries))
-        self.average = int(np.mean(self.country_sizes))
+                for country in self.countries:
+                    if country.identifier == country_id:
+                        country.areas.append(agent)
+                        country.size += 1
+                        agent.country = country
+        '''
+        countries_with_neighbors = []
+        for country in self.countries:
+            has_neighs = False
+            for area in country.areas:
+                neighs = self.grid.get_neighbors(area)
+                for neigh in neighs:
+                    if neigh.country.identifier != area.country.identifier:
+                        has_neighs = True
+            if has_neighs:
+                countries_with_neighbors.append(country)
+
+        self.countries = countries_with_neighbors
+        print(self.countries)
+        '''
+
+    def change_strategy(self):
+        """
+        Given the countries, picks the worst country
+        and changes strategy to empirical strategy 
+        of best country e.g. best did 10 trades and
+        1 deficit -> agressiveness 1 / 11
+        """
+        # Decide who is doing worst/best based on wealth
+        if self.round % 10 == 0:
+            # Number of countries that change strategy
+            k = 3
+            
+            worst_indices = np.argpartition([country.wealth for country in self.countries], k)[:k]
+            best_index = np.argmax([country.wealth for country in self.countries])
+
+            # Replace k worst countries
+            for index in worst_indices:
+                print(str(self.countries[index].identifier) +' changed from ' + str(self.countries[index].agressiveness) +' to ' + str((self.round - self.countries[best_index].trades) / self.round))
+                self.countries[index].agressiveness = (self.round - self.countries[best_index].trades) / self.round
+                
+    def tax_and_redistribute(self):
+
+        treasury = 0
+        total_wealth = 0
+
+        for country in self.countries:
+            # Take taxes
+            if country.wealth > 0:
+                tax = country.wealth * self.tax
+                country.wealth -= tax
+                treasury += tax 
+                total_wealth += country.wealth
+        print(total_wealth)
+        
+        # Count countries that traded and divide among 50% of them
+        trading_countries = [country for country in self.countries if country.traded]
+        entitled_countries = len(trading_countries)//2
+        worst_indices = np.argpartition([country.wealth for country in trading_countries], entitled_countries)[:entitled_countries]
+        for index in worst_indices:
+            trading_countries[index].wealth += treasury / entitled_countries
+
 
     def step(self):
         """Run one step of the model.
 
         If All agents are happy, halt the model.
         """
+        self.round += 1
         self.schedule.step()
-        '''
-        for k in self.countries:
-            self.countries[k]["wealth"] += self.countries[k]["constituing_regions"] * 0.2
-        '''
-        self.average = int(np.mean(self.country_sizes))
-        for i, key in enumerate(self.countries):
-            #print(self.countries[key])
-            self.country_sizes[i] = self.countries[key]['constituing_regions']
+        if self.tax != 0:
+            self.tax_and_redistribute()
+
+        self.change_strategy()
+
+        self.traded = 0
+        self.average_agressiveness = np.mean([country.agressiveness for country in self.countries])
+        for i, country in enumerate(self.countries):
+            country.interacted = False
+            if country.traded == True:
+                country.trades += 1
+        

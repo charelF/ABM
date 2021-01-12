@@ -5,6 +5,7 @@ from model import SchellingModel
 from mesa_geo.visualization.MapModule import MapModule
 from utilities import get_color
 import numpy as np
+from colormap import rgb2hex
 
 class HappyElement(TextElement):
     """
@@ -15,20 +16,17 @@ class HappyElement(TextElement):
         pass
 
     def render(self, model):
-        return "Average country size " + str(model.average)
+        return "Average agression " + str("%.2f" % model.average_agressiveness)
 
 model_params = {
-    "interaction_chance": UserSettableParameter(
-        "slider", "Interaction Chance", 0.2, 0.00, 1.0, 0.05
+    "tax": UserSettableParameter(
+        "slider", "Tax rate", 0.2, 0.00, 1.0, 0.05
     ),
-    "alliance_reward" : UserSettableParameter(
+    "trade_reward" : UserSettableParameter(
         "slider", "Trading reward", 4, 0, 10, 0.5
     ),
-    "war_reward" : UserSettableParameter(
+    "deficit_reward" : UserSettableParameter(
         "slider", "War reward", 4, 0, 10, 0.5
-    ),
-    "alliance_war_reward" : UserSettableParameter(
-        "slider", "Winner/loser win/loss", 5, 0, 10, 0.5
     ),
 }
 
@@ -38,8 +36,8 @@ def schelling_draw(agent):
     Portrayal Method for canvas
     """
     portrayal = dict()
-    if agent.country != None:
-        portrayal["color"] = agent.model.countries[agent.country]["color"]
+    if hasattr(agent, 'country'):
+        portrayal["color"] = rgb2hex(int(agent.country.agressiveness * 255), 0, 0)
     else:
         portrayal["color"] = 'white'
     return portrayal

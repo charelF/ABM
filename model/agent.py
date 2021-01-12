@@ -18,108 +18,86 @@ class SchellingAgent(GeoAgent):
         """
         super().__init__(unique_id, model, shape)
         self.atype = agent_type
-        '''
-        self.setup()
-    
-    def setup(self):
-        self.wealth = None
-        self.country = None
-        self.alliance = None
-        self.aggressiveness = None
-        self.rep = 0
-    '''
 
-    def fall(self):
-        self.model.countries[self.country]["constituing_regions"] -= 1
-        self.country = None
+    def trade(self, neighbor):
+        self.country.wealth     += self.model.trade_reward
+        neighbor.country.wealth +=  self.model.trade_reward
 
-    def take(self, neighbour):
-        print(self.country)
-        neighbour.country = self.country
-        print(self.country)
-        self.model.countries[self.country]["wealth"] -= 1
-        self.model.countries[self.country]["constituing_regions"] += 1
-        new = self.model.countries[self.country]["rep"] - 0.01
-        self.model.countries[self.country]["rep"] -= max(new, 0)
+    def deficit(self, neighbor, deficit):
+        """
+        deficit indicates who deficits: 1 is neighbour
+        -1 is self.
+        """
+        self.country.wealth     -= deficit * self.model.deficit_reward
+        neighbor.country.wealth += deficit * self.model.deficit_reward                
+
+    def both_deficit(self, neighbor):
+
+        self.country.wealth     -= self.model.deficit_reward
+        neighbor.country.wealth -= self.model.deficit_reward  
+
+    def choose_interaction(self):
+        """
+        Chooses an interaction True means trade
+        and False means deficit
+        """
+        if self.country.strat == 1:
+            if self.country.attacked:
+                return True
+            else:
+                return False
+        elif self.country.strat == 2:
+            if random.random() < self.country.aggressiveness:
+                    return True
+                else:
+                    return False
+
 
     def step(self):
         """Advance agent one step."""
-        if self.country == None:
-            return
-        if self.model.countries[self.country]["wealth"] < 0:
-            self.fall()
-            return
 
+        # See if country has interacted
+        if self.country.interacted:
+            return
         # New code
-        neighbors = self.model.grid.get_neighbors(self)
+        try:
+            neighbor = random.choice(self.model.grid.get_neighbors(self))
+            neighbor.country.interacted = True
+                            
+            if neighbor.country == self.country:
+                self.trade(neighbor)
+                self.country.traded = True
+            else:
+                self.country.traded = self.choose_interaction()
+                neighbor.country.traded = neighbor.choose_interaction()
 
-        # Implement that nation loses nation with 0 resources                
-        for neighbour in neighbors:
-            if neighbour.country == None:
-                self.take(neighbour)
-                break
-
-            if neighbour.country != self.country:
-                if random.random() < self.model.interaction_chance:
-                    self.get_interaction(neighbour)
-                    break
-    
-    def get_interaction(self, neighbour):
-        """
-        Given a neighbouring area, decides what kind
-        of interaction takes place.
-        """
-        # Iterate over class object
-
-        aggress_self = False
-        aggress_other = False
-
-        # Still need to incorporate reputation somehow
-        if self.country != None and neighbour.country != None:
-            if random.random() < self.model.countries[self.country]["aggressiveness"] - self.model.countries[neighbour.country]["rep"]:
-                aggress_self = True
-            if random.random() < self.model.countries[neighbour.country]["aggressiveness"] - self.model.countries[self.country]["rep"]:
-                aggress_other = True
-            
-            self.update_nations(neighbour, aggress_self, aggress_other)
-
-    def update_nations(self, nation_2, agress_1, agress_2):
-        """
-        Given 2 nations and their tactics updates the attributes
-        of those nations.
-        """
-        # Rep between -1 and 1
-        if agress_1:
-            new = self.model.countries[self.country]["rep"] - 0.01
-            self.model.countries[self.country]["rep"] = max(new, 0)
-        else:
-            new = self.model.countries[self.country]["rep"] + 0.01
-            self.model.countries[self.country]["rep"] = min(new, 1)
-        if agress_2:
-            new = self.model.countries[nation_2.country]["rep"] - 0.01
-            self.model.countries[nation_2.country]["rep"] = max(new, 0)
-        else:
-            new = self.model.countries[nation_2.country]["rep"] + 0.01
-            self.model.countries[nation_2.country]["rep"] = min(new, 1)     
-
-        if agress_1 and agress_2:
-            self.model.countries[self.country]["wealth"] -= self.model.war_reward
-            self.model.countries[nation_2.country]["wealth"] -= self.model.war_reward
-        elif agress_1 and not agress_2:
-            self.model.countries[self.country]["wealth"] += self.model.alliance_war_reward
-            self.model.countries[nation_2.country]["wealth"] -= self.model.alliance_war_reward
-        elif not agress_1 and agress_2:
-            self.model.countries[self.country]["wealth"] -= self.model.alliance_war_reward
-            self.model.countries[nation_2.country]["wealth"] += self.model.alliance_war_reward
-        else:
-            self.model.countries[self.country]["wealth"] += self.model.alliance_reward
-            self.model.countries[nation_2.country]["wealth"] += self.model.alliance_reward        
-
-        if self.model.countries[self.country]["wealth"] < 0:
-            self.fall()
-        if self.model.countries[nation_2.country]["wealth"] < 0:
-            nation_2.fall()
-        
+                # Update nation params
+                if self.country.trade:
+                    self.country.trades += 1
+                if neighbor.country.trade:
+                    neighbor.country.trades += 1
+                
+                # Interaction
+                if self.country.trade and neighbor.country.trade:
+                    self.trade(neighbor)
+                    self.country.attacked = False
+                    self.neighbour.attacked = False
+                # Read doc of deficit to understand 1, -1 args.
+                elif self.country.trade and not neighbor.country.trade:
+                    self.country.attacked = True
+                    self.neighbour.attacked = False
+                    self.deficit(neighbor, 1)
+                elif self.country.trade and not neighbor.country.trade:
+                    self.country.attacked = False
+                    self.neighbour.attacked = True
+                    self.deficit(neighbor, -1)
+                else:
+                    self.country.attacked = True
+                    self.neighbour.attacked = True
+                    self.both_deficit(neighbor)
+        except:
+            # When country has no neighbors
+            self.country.traded = False
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)
