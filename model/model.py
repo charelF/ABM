@@ -18,7 +18,9 @@ class RegionModel(Model):
         self.grid = GeoSpace()
 
         self.test = 10
-        self.datacollector = DataCollector({"happy": 12.3, "test2": 2, "test":"test"})
+        self.avgwealth = [0,1]
+        self.datadic = {}
+        
 
         self.running = True
 
@@ -52,7 +54,12 @@ class RegionModel(Model):
                 }
             else:
                 self.countries[agent.country]["constituing_regions"] += 1
+        self.agents = agents
             # agent.aggressiveness = self.countries[agent.country]
+
+        self.datacollector = DataCollector(
+            {"test":"test", "avgwealth": "avgwealth"},
+            {"wealth":"wealth"})
 
 
     def step(self):
@@ -61,8 +68,14 @@ class RegionModel(Model):
         If All agents are happy, halt the model.
         """
         self.test +=1  # Reset counter of happy agents
-        self.schedule.step()
-        # self.datacollector.collect(self)
+        
+        
+
+        self.avgwealth = np.mean([agent.wealth for agent in self.agents])
+
 
         # if self.test == self.schedule.get_agent_count():
         #     self.running = False
+
+        self.schedule.step()
+        self.datacollector.collect(self)

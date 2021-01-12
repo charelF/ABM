@@ -37,7 +37,7 @@ def schelling_draw(agent):
 
 happy_element = HappyElement()
 map_element = MapModule(schelling_draw, [52, 12], 4, 500, 500)
-happy_chart = ChartModule([{"Label": "test", "Color": "Black"}])
+happy_chart = ChartModule([{"Label": "avgwealth", "Color": "Green"}, {"Label": "test", "Color": "Black"}])
 server = ModularServer(
     RegionModel, [map_element, happy_element, happy_chart], "Regions", model_params
 )
