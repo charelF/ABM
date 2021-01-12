@@ -5,6 +5,12 @@ from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
 import random
 
+class Test(dict):
+    hey = 4
+
+    def __init__(self):
+        dict.__init__(self, hey=self.hey)
+
 class RegionAgent(GeoAgent):
 
     def __init__(self, unique_id, model, shape):
@@ -20,6 +26,7 @@ class RegionAgent(GeoAgent):
         self.country = None
         self.alliance = None
         self.aggressiveness = None
+        self.test = None
 
     def attack(self):
         neighbours = self.model.grid.get_neighbors(self)
@@ -28,6 +35,8 @@ class RegionAgent(GeoAgent):
             if self.wealth > target.wealth:
                 # attack succesful
                 target.country = self.country
+                self.model.countries[self.country]["constituing_regions"] += 1
+                self.model.countries[target.country]["constituing_regions"] -= 1
     
     def trade(self):
         neighbours = self.model.grid.get_neighbors(self)

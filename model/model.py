@@ -17,8 +17,8 @@ class RegionModel(Model):
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
 
-        self.test = 0
-        self.datacollector = DataCollector({"test": "test"})
+        self.test = 10
+        self.datacollector = DataCollector({"happy": 12.3, "test2": 2, "test":"test"})
 
         self.running = True
 
@@ -34,11 +34,12 @@ class RegionModel(Model):
         #             agent.atype = 1
         #         else:
         #             agent.atype = 0
-        #       
+              
         for agent in agents:
             self.schedule.add(agent)
             agent.wealth = agent.SHAPE_AREA
             agent.country = agent.NUTS_ID[0:2]
+            agent.test = Test()
 
             np.random.seed(hash(agent.country) % 10000)
             color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
@@ -59,7 +60,7 @@ class RegionModel(Model):
 
         If All agents are happy, halt the model.
         """
-        # self.test = 0  # Reset counter of happy agents
+        self.test +=1  # Reset counter of happy agents
         self.schedule.step()
         # self.datacollector.collect(self)
 

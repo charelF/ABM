@@ -15,7 +15,7 @@ class HappyElement(TextElement):
         pass
 
     def render(self, model):
-        return "Happy agents: " + str(model.test)
+        return "Happy agents: " + str(np.random.randint(0, 10))
 
 
 model_params = {
@@ -31,21 +31,14 @@ def schelling_draw(agent):
     Portrayal Method for canvas
     """
     portrayal = dict()
-    # if agent.country is None:
-    #     portrayal["color"] = "Grey"
-    # elif agent.country == "PL":
-    #     portrayal["color"] = "#123412"#"Red"
-    # else:
-    #     portrayal["color"] = "Blue"
     portrayal["color"] = agent.model.countries[agent.country]["color"]
-    # print(portrayal["color"])
     return portrayal
 
 
 happy_element = HappyElement()
 map_element = MapModule(schelling_draw, [52, 12], 4, 500, 500)
-happy_chart = ChartModule([{"Label": "happy", "Color": "Black"}])
+happy_chart = ChartModule([{"Label": "test", "Color": "Black"}])
 server = ModularServer(
-    RegionModel, [map_element, happy_element, happy_chart], "Schelling", model_params
+    RegionModel, [map_element, happy_element, happy_chart], "Regions", model_params
 )
 server.launch()
