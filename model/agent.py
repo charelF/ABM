@@ -48,9 +48,9 @@ class SchellingAgent(GeoAgent):
                 return False
         elif self.country.strat == 2:
             if random.random() < self.country.aggressiveness:
-                    return True
-                else:
-                    return False
+                return True    
+            else:
+                return False
 
 
     def step(self):

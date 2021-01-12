@@ -12,6 +12,7 @@ class Nation(dict, GeoAgent):
 
     def __init__(self, NUTS_ID):
         self.identifier = NUTS_ID
+        self.strat = 2
         self.areas = []
         self.size = 1
         self.interacted = False
