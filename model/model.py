@@ -61,11 +61,11 @@ class SchellingModel(Model):
 
         # Set up the grid with patches for every NUTS region
         AC = AgentCreator(SchellingAgent, {"model": self})
-        agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
-        self.grid.add_agents(agents)
+        self.agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
+        self.grid.add_agents(self.agents)
 
         # Set up agents
-        for agent in agents:
+        for agent in self.agents:
             agent.atype = agent.NUTS_ID[:2]
             self.armies[agent.atype].append(id(self))
             agent.army = self.armies[agent.atype][0]
