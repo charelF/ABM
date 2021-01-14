@@ -30,13 +30,16 @@ model_params = {
         "slider", "Member trading reward", 3, 0, 10, 0.5
     ),
     "union_payoff_sensitivity" : UserSettableParameter(
-        "slider", "Union Payoff Sensitivity trading reward", 1, 0, 10, 0.1
+        "slider", "Union Payoff sensitivity", 1, 0, 10, 0.1
     ),
     "neighbor_influence" : UserSettableParameter(
         "slider", "Neighbor influence", 0.01, 0, 0.1, 0.001
     ),
     "vision" : UserSettableParameter(
         "slider", "Vision", 0, 0, 1, 0.1
+    ),
+    "union_payoff_history_max_length" : UserSettableParameter(
+        "slider", "Union payoff history max length", 10, 1, 50, 1
     ),
 }
 
