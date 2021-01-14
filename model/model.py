@@ -27,7 +27,8 @@ class RegionModel(Model):
     """Model class for the Region segregation model."""
 
     def __init__(self, basic_trade_reward, member_trade_reward,
-                 union_payoff, union_payoff_sensitivity, neighbor_influence):
+                 union_payoff, union_payoff_sensitivity, neighbor_influence,
+                 vision):
 
         self.countries = []
         self.basic_trade_reward = basic_trade_reward
@@ -38,6 +39,7 @@ class RegionModel(Model):
         self.union_payoff_sensitivity = union_payoff_sensitivity
         self.neighbor_influence = neighbor_influence
         self.union_payoff_history = []
+        self.vision = vision
         self.round = 0
         # self.average_agressiveness = 0
 

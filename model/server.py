@@ -35,6 +35,9 @@ model_params = {
     "neighbor_influence" : UserSettableParameter(
         "slider", "Neighbor influence", 0.01, 0, 0.1, 0.001
     ),
+    "vision" : UserSettableParameter(
+        "slider", "Vision", 0, 0, 1, 0.1
+    ),
 }
 
 

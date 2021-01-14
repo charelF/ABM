@@ -96,15 +96,18 @@ class RegionAgent(GeoAgent):
             self.strategy = random.choice([1,2])
 
     def get_neighbor(self):
-
-        try:
-            neighbor = random.choice(self.model.grid.get_neighbors(self))
-            return neighbor
-        except:
-            while True:
+        if random.random() < self.model.vision:
+            neighbor = random.choice(self.model.agents)
+        else:
+            try:
+                neighbor = random.choice(self.model.grid.get_neighbors(self))
+            except:
                 neighbor = random.choice(self.model.agents)
-                if neighbor != self:
-                    return neighbor
+        
+        if neighbor == self:
+            neighbor = self.get_neighbor()
+        return neighbor
+        
 
 
     def step(self):
