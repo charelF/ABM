@@ -23,14 +23,14 @@ class Nation(dict, GeoAgent):
         self.trades = 0
         dict.__init__(self)
 
-class SchellingModel(Model):
-    """Model class for the Schelling segregation model."""
+class RegionModel(Model):
+    """Model class for the Region segregation model."""
 
-    def __init__(self, tax, trade_reward, deficit_reward):
+    def __init__(self, tax, trade_reward, defect_reward):
 
         self.countries = []
         self.trade_reward = trade_reward
-        self.deficit_reward = deficit_reward
+        self.defect_reward = defect_reward
         # Params
         self.tax = tax
         self.round = 0
@@ -38,11 +38,10 @@ class SchellingModel(Model):
 
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
-        self.datacollector = DataCollector({"test": "test"})
 
         self.running = True
         # Set up the grid with patches for every NUTS region
-        AC = AgentCreator(SchellingAgent, {"model": self})
+        AC = AgentCreator(RegionAgent, {"model": self})
         agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
         self.grid.add_agents(agents)
         ###
@@ -74,13 +73,20 @@ class SchellingModel(Model):
         self.countries = countries_with_neighbors
         print(self.countries)
         '''
+        self.agents = agents
+
+        print(countries)
+
+        datacollectdict = {""}
+
+        self.datacollector = DataCollector({"test": "test"})
 
     def change_strategy(self):
         """
         Given the countries, picks the worst country
         and changes strategy to empirical strategy 
         of best country e.g. best did 10 trades and
-        1 deficit -> agressiveness 1 / 11
+        1 defect -> agressiveness 1 / 11
         """
         # Decide who is doing worst/best based on wealth
         if self.round % 10 == 0:

@@ -1,7 +1,7 @@
 from mesa_geo.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
-from model import SchellingModel
+from model import RegionModel
 from mesa_geo.visualization.MapModule import MapModule
 from utilities import get_color
 import numpy as np
@@ -46,6 +46,6 @@ happy_element = HappyElement()
 map_element = MapModule(schelling_draw, [52, 12], 3, 500, 700)
 happy_chart = ChartModule([{"Label": 'average', "Color": "Black"}])
 server = ModularServer(
-    SchellingModel, [map_element, happy_element, happy_chart], "Warring nations", model_params
+    RegionModel, [map_element, happy_element, happy_chart], "Warring nations", model_params
 )
 server.launch()
