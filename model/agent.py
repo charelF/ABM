@@ -23,14 +23,14 @@ class RegionAgent(GeoAgent):
     def update_cooperativeness(self, neighbor):
         if self.strategy == 1:
             # if I cooperate, my neighbors cooperativess will go up
-            neighbor.cooperativeness = min(neighbor.cooperativeness + 0.1, 1)
+            neighbor.cooperativeness = min(neighbor.cooperativeness + 0.01, 1)
         else:
-            neighbor.cooperativeness = max(neighbor.cooperativeness - 0.1, -1)
+            neighbor.cooperativeness = max(neighbor.cooperativeness - 0.01, -1)
         
         if neighbor.strategy == 1:
-            self.cooperativeness = min(self.cooperativeness + 0.1, 1)
+            self.cooperativeness = min(self.cooperativeness + 0.01, 1)
         else:
-            self.cooperativeness = max(self.cooperativeness - 0.1, -1)
+            self.cooperativeness = max(self.cooperativeness - 0.01, -1)
 
     def CC(self, neighbor):
         self.wealth += self.model.member_trade_reward
@@ -80,7 +80,13 @@ class RegionAgent(GeoAgent):
 
     def choose_strategy(self):
 
-        decision = self.cooperativeness + self.model.union_payoff
+        decision = (
+            self.cooperativeness +
+            self.model.union_payoff +
+            self.model.member_trade_reward -
+            self.model.basic_trade_reward +
+            np.random.random()-0.5
+        )
 
         if decision > 0:
             self.strategy = 1
@@ -90,10 +96,16 @@ class RegionAgent(GeoAgent):
             self.strategy = np.random.choice([1,2])
 
     def get_neighbor(self):
-        while True:
-            neighbor = random.choice(self.model.agents)
-            if neighbor != self:
-                return neighbor
+
+        try:
+            neighbor = random.choice(self.model.grid.get_neighbors(self))
+            return neighbor
+        except:
+            while True:
+                neighbor = random.choice(self.model.agents)
+                if neighbor != self:
+                    return neighbor
+
 
     def step(self):
         self.choose_strategy()

@@ -26,7 +26,7 @@ class Nation(dict, GeoAgent):
 class RegionModel(Model):
     """Model class for the Region segregation model."""
 
-    def __init__(self, basic_trade_reward, member_trade_reward, union_payoff):
+    def __init__(self, basic_trade_reward, member_trade_reward, union_payoff, union_payoff_sensitivity):
 
         self.countries = []
         self.basic_trade_reward = basic_trade_reward
@@ -34,6 +34,8 @@ class RegionModel(Model):
         # self.defect_reward = defect_reward
         # Params
         self.union_payoff = union_payoff
+        self.union_payoff_sensitivity = union_payoff_sensitivity
+        self.union_payoff_history = []
         self.round = 0
         # self.average_agressiveness = 0
 
@@ -84,8 +86,28 @@ class RegionModel(Model):
 
         # datacollectdict = {""}
 
-        self.datacollector = DataCollector({"test": "test"})
+        self.collaborator_count, self.defector_count = self.count_collaborators()
+
+        self.datacollector = DataCollector({"collaborator_count": "collaborator_count", "defector_count":"defector_count", "union_payoff":"union_payoff"})
         self.datacollector.collect(self)
+
+    def count_collaborators(self):
+        C = 0
+        D = 0
+        for agent in self.agents:
+            if agent.strategy == 1:
+                C+=1
+            else:
+                D+=1
+        return C, D
+
+    def compute_union_payoff(self):
+        # self.union_payoff = (0.5 - self.count_collaborators()[0]/len(self.agents))
+        ### ALEX
+        new_pay_off = (self.union_payoff_sensitivity*(0.5-(self.count_collaborators()[0]/len(self.agents))))
+
+
+        self.union_payoff = new_pay_off
 
     # def change_strategy(self):
     #     """
@@ -136,6 +158,8 @@ class RegionModel(Model):
         """
         self.round += 1
         self.schedule.step()
+        self.collaborator_count, self.defector_count = self.count_collaborators()
+        self.compute_union_payoff()
         # if self.tax != 0:
         #     self.tax_and_redistribute()
 
