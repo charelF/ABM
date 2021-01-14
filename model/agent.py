@@ -10,11 +10,6 @@ from utilities import *
 class RegionAgent(GeoAgent):
 
     def __init__(self, unique_id, model, shape):
-        """Create a new Schelling agent.
-
-        Args:
-            unique_id: Unique identifier for the agent.
-        """
         super().__init__(unique_id, model, shape)
         self.wealth = None
         self.cooperativeness = None  # between -1 and 1
@@ -26,7 +21,6 @@ class RegionAgent(GeoAgent):
             neighbor.cooperativeness = min(neighbor.cooperativeness + self.model.neighbor_influence, 1)
         else:
             neighbor.cooperativeness = max(neighbor.cooperativeness - self.model.neighbor_influence, -1)
-        
         if neighbor.strategy == 1:
             self.cooperativeness = min(self.cooperativeness + self.model.neighbor_influence, 1)
         else:
@@ -52,20 +46,6 @@ class RegionAgent(GeoAgent):
         self.wealth += self.model.basic_trade_reward
         neighbor.wealth += self.model.basic_trade_reward
 
-
-    # def defect(self, neighbor, defect):
-    #     """
-    #     defect indicates who defects: 1 is neighbour
-    #     -1 is self.
-    #     """
-    #     self.country.wealth     -= defect * self.model.defect_reward
-    #     neighbor.country.wealth += defect * self.model.defect_reward                
-
-    # def both_defect(self, neighbor):
-
-    #     self.country.wealth     -= self.model.defect_reward
-    #     neighbor.country.wealth -= self.model.defect_reward  
-
     def interact(self, neighbor):
         if self.strategy == 1:
             if neighbor.strategy == 1:
@@ -79,15 +59,13 @@ class RegionAgent(GeoAgent):
                 self.DD(neighbor)
 
     def choose_strategy(self):
-
         decision = (
             self.cooperativeness
-            + self.model.union_payoff +
+            + self.model.union_payoff
             + self.model.member_trade_reward
             - self.model.basic_trade_reward
-            + random.uniform(-0.1, 0.1)
+            # + random.uniform(-0.1, 0.1)
         )
-
         if decision > 0:
             self.strategy = 1
         elif decision < 0:
@@ -96,6 +74,7 @@ class RegionAgent(GeoAgent):
             self.strategy = random.choice([1,2])
 
     def get_neighbor(self):
+        # there is a 1/(len(agents)) chance we trade with ourself lol
         if random.random() < self.model.vision:
             neighbor = random.choice(self.model.agents)
         else:
@@ -103,75 +82,14 @@ class RegionAgent(GeoAgent):
                 neighbor = random.choice(self.model.grid.get_neighbors(self))
             except:
                 neighbor = random.choice(self.model.agents)
-        
-        if neighbor == self:
-            neighbor = self.get_neighbor()
+    
         return neighbor
         
-
-
     def step(self):
         self.choose_strategy()
         neighbor = self.get_neighbor()
         self.interact(neighbor)
         self.update_cooperativeness(neighbor)
-
-
-
-
-
-
-
-
-
-        # """Advance agent one step."""
-
-        # # See if country has interacted
-        # if self.country.interacted:
-        #     return
-        # # New code
-        # # try:
-        # # commenting out the try except becaus it catches all kinds of errors, can be reactivated later
-        # # neighbor = random.choice(self.model.grid.get_neighbors(self))
-        
-
-        # neighbor.country.interacted = True
-        # self.country.interacted = True
-                        
-        # # if neighbor.country == self.country:
-        # #     self.trade(neighbor)
-        # #     self.country.traded = True
-        # # else:
-        # self.country.traded = self.choose_interaction()
-        # neighbor.country.traded = neighbor.choose_interaction()
-
-        # # Update nation params
-        # if self.country.trade:
-        #     self.country.trades += 1
-        # if neighbor.country.trade:
-        #     neighbor.country.trades += 1
-        
-        # # Interaction
-        # if self.country.trade and neighbor.country.trade:
-        #     self.trade(neighbor)
-        #     self.country.attacked = False
-        #     self.neighbour.attacked = False
-        # # Read doc of defect to understand 1, -1 args.
-        # elif self.country.trade and not neighbor.country.trade:
-        #     self.country.attacked = True
-        #     self.neighbour.attacked = False
-        #     self.defect(neighbor, 1)
-        # elif self.country.trade and not neighbor.country.trade:
-        #     self.country.attacked = False
-        #     self.neighbour.attacked = True
-        #     self.defect(neighbor, -1)
-        # else:
-        #     self.country.attacked = True
-        #     self.neighbour.attacked = True
-        #     self.both_defect(neighbor)
-        # # except:
-        # #     # When country has no neighbors
-        # #     self.country.traded = False
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)

@@ -57,9 +57,10 @@ def schelling_draw(agent):
     return portrayal
 
 # happy_element = HappyElement()
-map_element = MapModule(schelling_draw, [52, 12], 3, 500, 700)
-type_chart = ChartModule([{"Label": 'defector_count', "Color": "Red"}, {"Label": 'collaborator_count', "Color": "Blue"}])
-payoff_chart = ChartModule([{"Label": 'union_payoff', "Color": "Green"}])
+map_element = MapModule(schelling_draw, [57, 12], 3, 400, 800)
+type_chart = ChartModule([{"Label": 'defector_count', "Color": "Red"},
+                          {"Label": 'collaborator_count', "Color": "Blue"}], 200, 500)
+payoff_chart = ChartModule([{"Label": 'union_payoff', "Color": "Green"}], 200, 500)
 server = ModularServer(
     RegionModel, [map_element, type_chart, payoff_chart], "Warring nations", model_params
 )

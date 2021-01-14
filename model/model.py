@@ -8,50 +8,49 @@ from agent import *
 import numpy as np
 import pprint
 
-class Nation(dict, GeoAgent):
+# TODO: see if we can reimplement countries somehow, maybe the way they are
+# code is commented out since countries are not implemented right now
+# class Nation(dict, GeoAgent):
 
-    def __init__(self, NUTS_ID):
-        self.identifier = NUTS_ID
-        # self.strat = 2
-        self.areas = []
-        self.size = 1
-        self.interacted = False
-        self.traded = True
-        self.agressiveness = random.random()
-        self.color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
-        self.wealth = 10
-        self.trades = 0
-        dict.__init__(self)
+#     def __init__(self, NUTS_ID):
+#         self.identifier = NUTS_ID
+#         # self.strat = 2
+#         self.areas = []
+#         self.size = 1
+#         self.interacted = False
+#         self.traded = True
+#         self.agressiveness = random.random()
+#         self.color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
+#         self.wealth = 10
+#         self.trades = 0
+#         dict.__init__(self)
 
 class RegionModel(Model):
-    """Model class for the Region segregation model."""
-
     def __init__(self, basic_trade_reward, member_trade_reward,
                  union_payoff, union_payoff_sensitivity, neighbor_influence,
                  vision):
 
-        self.countries = []
+        # set up arguments
         self.basic_trade_reward = basic_trade_reward
         self.member_trade_reward = member_trade_reward
-        # self.defect_reward = defect_reward
-        # Params
         self.union_payoff = union_payoff
         self.union_payoff_sensitivity = union_payoff_sensitivity
         self.neighbor_influence = neighbor_influence
         self.union_payoff_history = []
         self.vision = vision
-        self.round = 0
-        # self.average_agressiveness = 0
 
+        # set up other parameters
+        self.round = 0
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
-
         self.running = True
-        # Set up the grid with patches for every NUTS region
+
+        # set up grid
         AC = AgentCreator(RegionAgent, {"model": self})
         self.agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
         self.grid.add_agents(self.agents)
-        ###
+        
+        # set up agents
         for agent in self.agents:
             self.schedule.add(agent)
             cooperativeness = max(min(np.random.normal(0, 1), 1), -1)
@@ -69,29 +68,30 @@ class RegionModel(Model):
             #             country.areas.append(agent)
             #             country.size += 1
             #             agent.country = country
-        '''
-        countries_with_neighbors = []
-        for country in self.countries:
-            has_neighs = False
-            for area in country.areas:
-                neighs = self.grid.get_neighbors(area)
-                for neigh in neighs:
-                    if neigh.country.identifier != area.country.identifier:
-                        has_neighs = True
-            if has_neighs:
-                countries_with_neighbors.append(country)
+        # '''
+        # countries_with_neighbors = []
+        # for country in self.countries:
+        #     has_neighs = False
+        #     for area in country.areas:
+        #         neighs = self.grid.get_neighbors(area)
+        #         for neigh in neighs:
+        #             if neigh.country.identifier != area.country.identifier:
+        #                 has_neighs = True
+        #     if has_neighs:
+        #         countries_with_neighbors.append(country)
 
-        self.countries = countries_with_neighbors
-        print(self.countries)
-        '''
+        # self.countries = countries_with_neighbors
+        # print(self.countries)
+        # '''
         # self.agents = agents
 
         # print(countries)
 
         # datacollectdict = {""}
 
-        self.collaborator_count, self.defector_count = self.count_collaborators()
-
+        # set up datacollector
+        self.collaborator_count = self.count_collaborators()
+        self.defector_count = len(self.agents) - self.collaborator_count
         self.datacollector = DataCollector({"collaborator_count": "collaborator_count", "defector_count":"defector_count", "union_payoff":"union_payoff"})
         self.datacollector.collect(self)
 
@@ -103,15 +103,16 @@ class RegionModel(Model):
                 C+=1
             else:
                 D+=1
-        return C, D
+        return C
 
     def compute_union_payoff(self):
         # self.union_payoff = (0.5 - self.count_collaborators()[0]/len(self.agents))
         ### ALEX
-        new_pay_off = (self.union_payoff_sensitivity*(0.5-(self.count_collaborators()[0]/len(self.agents))))
-
-
-        self.union_payoff = new_pay_off
+        new_pay_off = (self.union_payoff_sensitivity*(0.5-(self.collaborator_count/len(self.agents))))
+        if len(self.union_payoff_history) >= 5:
+            self.union_payoff_history.pop(0)
+        self.union_payoff_history.append(new_pay_off)
+        self.union_payoff = sum(self.union_payoff_history)/5
 
     # def change_strategy(self):
     #     """
@@ -156,13 +157,10 @@ class RegionModel(Model):
 
 
     def step(self):
-        """Run one step of the model.
-
-        If All agents are happy, halt the model.
-        """
         self.round += 1
         self.schedule.step()
-        self.collaborator_count, self.defector_count = self.count_collaborators()
+        self.collaborator_count = self.count_collaborators()
+        self.defector_count = len(self.agents) - self.collaborator_count
         self.compute_union_payoff()
         # if self.tax != 0:
         #     self.tax_and_redistribute()
@@ -177,4 +175,6 @@ class RegionModel(Model):
         #         country.trades += 1
 
         self.datacollector.collect(self)
-        
+
+        if self.collaborator_count == 0 or self.defector_count == 0:
+            self.running = False
