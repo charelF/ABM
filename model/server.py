@@ -23,13 +23,16 @@ model_params = {
         "slider", "Initial Union Payoff", 0, -1.0, 1.0, 0.05
     ),
     "basic_trade_reward" : UserSettableParameter(
-        "slider", "Basic trading reward", 4, 0, 10, 0.5
+        "slider", "Basic trading reward", 3, 0, 10, 0.5
     ),
     "member_trade_reward" : UserSettableParameter(
         "slider", "Member trading reward", 3, 0, 10, 0.5
     ),
     "union_payoff_sensitivity" : UserSettableParameter(
-        "slider", "Union Payoff Sensitivity trading reward", 3, -10, 10, 0.001
+        "slider", "Union Payoff Sensitivity trading reward", 1, 0, 10, 0.1
+    ),
+    "neighbor_influence" : UserSettableParameter(
+        "slider", "Neighbor influence", 0.01, 0, 0.1, 0.001
     ),
 }
 
