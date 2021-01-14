@@ -16,17 +16,17 @@ class HappyElement(TextElement):
         pass
 
     def render(self, model):
-        return "Average agression " + str("%.2f" % model.average_agressiveness)
+        return "temp" #"Average agression " + str("%.2f" % model.average_agressiveness)
 
 model_params = {
-    "tax": UserSettableParameter(
-        "slider", "Tax rate", 0.2, 0.00, 1.0, 0.05
+    "union_payoff": UserSettableParameter(
+        "slider", "Union Payoff", 0, -1.0, 1.0, 0.05
     ),
-    "trade_reward" : UserSettableParameter(
-        "slider", "Trading reward", 4, 0, 10, 0.5
+    "basic_trade_reward" : UserSettableParameter(
+        "slider", "Basic trading reward", 4, 0, 10, 0.5
     ),
-    "deficit_reward" : UserSettableParameter(
-        "slider", "War reward", 4, 0, 10, 0.5
+    "member_trade_reward" : UserSettableParameter(
+        "slider", "Member trading reward", 3, 0, 10, 0.5
     ),
 }
 
@@ -36,10 +36,14 @@ def schelling_draw(agent):
     Portrayal Method for canvas
     """
     portrayal = dict()
-    if hasattr(agent, 'country'):
-        portrayal["color"] = rgb2hex(int(agent.country.agressiveness * 255), 0, 0)
+    # if hasattr(agent, 'country'):
+    #     portrayal["color"] = rgb2hex(int(agent.country.agressiveness * 255), 0, 0)
+    # else:
+    #     portrayal["color"] = 'white'
+    if agent.strategy == 1:
+        portrayal["color"] = "Blue"
     else:
-        portrayal["color"] = 'white'
+        portrayal["color"] = "Red"
     return portrayal
 
 happy_element = HappyElement()

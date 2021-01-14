@@ -16,7 +16,7 @@ class RegionAgent(GeoAgent):
             unique_id: Unique identifier for the agent.
         """
         super().__init__(unique_id, model, shape)
-        self.wealth
+        self.wealth = None
         self.cooperativeness = None  # between -1 and 1
         self.strategy = None  # 1 = cooperate, 2 = defect
 
@@ -68,16 +68,16 @@ class RegionAgent(GeoAgent):
     #     neighbor.country.wealth -= self.model.defect_reward  
 
     def interact(self, neighbor):
-        if self.strat == 1:
-            if neighbor.strat == 1:
-                self.CC()
+        if self.strategy == 1:
+            if neighbor.strategy == 1:
+                self.CC(neighbor)
             else:
-                self.CD()
+                self.CD(neighbor)
         else:
-            if neighbor.strat == 1:
-                self.DC()
+            if neighbor.strategy == 1:
+                self.DC(neighbor)
             else:
-                self.DD()
+                self.DD(neighbor)
 
     def choose_strategy(self):
 
