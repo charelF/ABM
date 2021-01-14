@@ -27,7 +27,7 @@ class RegionAgent(GeoAgent):
         else:
             neighbor.cooperativeness = max(neighbor.cooperativeness - 0.1, -1)
         
-        if neigbor.strategy == 1:
+        if neighbor.strategy == 1:
             self.cooperativeness = min(self.cooperativeness + 0.1, 1)
         else:
             self.cooperativeness = max(self.cooperativeness - 0.1, -1)
@@ -41,7 +41,6 @@ class RegionAgent(GeoAgent):
     def CD(self, neighbor):
         self.wealth += self.model.basic_trade_reward
         self.wealth += self.model.union_payoff
-        self.cooperativeness = max(self.cooperativeness + 0.1, 1)
         neighbor.wealth += self.model.basic_trade_reward
         
     def DC(self, neighbor):
@@ -81,14 +80,14 @@ class RegionAgent(GeoAgent):
 
     def choose_strategy(self):
 
-        if (self.cooperativeness +
-            self.model.union_payoff + 
-            self.model.member_trade_reward -
-            self.model.basic_trade_reward) > 0:
-            # cooperates
-            self.strat = 1
+        decision = self.cooperativeness + self.model.union_payoff
+
+        if decision > 0:
+            self.strategy = 1
+        elif decision < 0:
+            self.strategy = 2
         else:
-            self.strat = 2
+            self.strategy = np.random.choice([1,2])
 
     def get_neighbor(self):
         while True:
@@ -100,6 +99,7 @@ class RegionAgent(GeoAgent):
         self.choose_strategy()
         neighbor = self.get_neighbor()
         self.interact(neighbor)
+        self.update_cooperativeness(neighbor)
 
 
 
