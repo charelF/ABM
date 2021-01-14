@@ -18,6 +18,7 @@ from colormap import rgb2hex
 #     def render(self, model):
 #         return "temp" #"Average agression " + str("%.2f" % model.average_agressiveness)
 
+
 model_params = {
     "union_payoff": UserSettableParameter(
         "slider", "Initial Union Payoff", 0, -1.0, 1.0, 0.05
