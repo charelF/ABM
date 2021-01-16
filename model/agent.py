@@ -16,17 +16,6 @@ class RegionAgent(GeoAgent):
         self.strategy = None  # 1 = cooperate, 2 = defect
         self.efficiency = None
     
-    def update_cooperativeness(self, neighbor):
-        if self.strategy == 1:
-            # if I cooperate, my neighbors cooperativess will go up
-            neighbor.cooperativeness = min(neighbor.cooperativeness + self.model.neighbor_influence, 1)
-        else:
-            neighbor.cooperativeness = max(neighbor.cooperativeness - self.model.neighbor_influence, -1)
-        if neighbor.strategy == 1:
-            self.cooperativeness = min(self.cooperativeness + self.model.neighbor_influence, 1)
-        else:
-            self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
-
     def CC(self, neighbor):
         self.wealth += self.model.member_trade_reward * self.wealth
         neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
@@ -60,7 +49,7 @@ class RegionAgent(GeoAgent):
                 self.DC(neighbor)
             else:
                 self.DD(neighbor)
-
+                
     def compare_neighs(self):
 
         neighs = self.model.grid.get_neighbors(self)
@@ -72,6 +61,20 @@ class RegionAgent(GeoAgent):
                 cooperating_neighs += 1
         return (cooperating_neighs/ len(neighs) - 1/2)
 
+    def choose_strategy(self):
+        decision = (
+            self.cooperativeness
+            + self.model.union_payoff
+            + self.model.member_trade_reward
+            - self.model.basic_trade_reward
+            # + random.uniform(-0.1, 0.1)
+        )
+        if decision > 0:
+            self.strategy = 1
+        elif decision < 0:
+            self.strategy = 2
+        else:
+            self.strategy = random.choice([1,2])
 
     def choose_strategy(self):
         decision = (
@@ -97,8 +100,6 @@ class RegionAgent(GeoAgent):
         self.wealth = self.wealth * self.efficiency
         consumed = self.model.consumption * self.wealth
         self.wealth -= consumed
-
-
 
     def get_neighbor(self):
         # there is a 1/(len(agents)) chance we trade with ourself lol

@@ -28,7 +28,6 @@ import pprint
 class RegionModel(Model):
     def __init__(self, basic_trade_reward, member_trade_reward,
                 vision, max_eff, eu_tax, weight, consumption, volatile):
-
         # set up arguments
         self.basic_trade_reward = basic_trade_reward
         self.member_trade_reward = member_trade_reward
@@ -50,7 +49,7 @@ class RegionModel(Model):
         AC = AgentCreator(RegionAgent, {"model": self})
         self.agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
         self.grid.add_agents(self.agents)
-        
+
         # set up agents
         for agent in self.agents:
             self.schedule.add(agent)
@@ -78,6 +77,7 @@ class RegionModel(Model):
         self.collaborator_count = self.count_collaborators()
         self.defector_count = len(self.agents) - self.collaborator_count
         self.datacollector = DataCollector({"collaborator_count": "collaborator_count", "defector_count":"defector_count", "av_coop":"av_coop"})
+
         self.datacollector.collect(self)
 
     def count_collaborators(self):
@@ -88,7 +88,6 @@ class RegionModel(Model):
             if agent.strategy == 1:
                 C+=1
         return C
-
 
     def distribute_taxes(self):
 
@@ -149,4 +148,3 @@ class RegionModel(Model):
         self.collaborator_count = self.count_collaborators()
         #if self.collaborator_count == 0 or self.defector_count == 0:
             #self.running = False
-        
