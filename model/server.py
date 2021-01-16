@@ -67,7 +67,12 @@ map_element = MapModule(schelling_draw, [57, 12], 3, 400, 800)
 type_chart = ChartModule([{"Label": 'defector_count', "Color": "Red"},
                           {"Label": 'collaborator_count', "Color": "Blue"}], 200, 500)
 payoff_chart = ChartModule([{"Label": 'av_coop', "Color": "Green"}], 200, 500)
+wealth_chart = ChartModule([
+    {"Label": 'other_wealth', "Color": "Red"},
+    {"Label": 'total_wealth', "Color": "Yellow"},
+    {"Label": 'member_wealth', "Color": "Blue"},
+], 200, 500)
 server = ModularServer(
-    RegionModel, [map_element, type_chart, payoff_chart], "Warring nations", model_params
+    RegionModel, [map_element, type_chart, wealth_chart, payoff_chart], "Warring nations", model_params
 )
 server.launch()

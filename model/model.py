@@ -21,6 +21,9 @@ class RegionModel(Model):
         self.total_hardship = 0
         self.neighbor_influence = neighbor_influence
         self.tax_influence = tax_influence
+        self.total_wealth = 0
+        self.member_wealth = 0
+        self.other_wealth = 0
 
         # set up other parameters
         self.round = 0
@@ -59,7 +62,13 @@ class RegionModel(Model):
         # set up datacollector
         self.collaborator_count = self.count_collaborators()
         self.defector_count = len(self.agents) - self.collaborator_count
-        self.datacollector = DataCollector({"collaborator_count": "collaborator_count", "defector_count":"defector_count", "av_coop":"av_coop"})
+        self.datacollector = DataCollector(
+            {"collaborator_count": "collaborator_count",
+            "defector_count":"defector_count",
+            "av_coop":"av_coop",
+            "other_wealth":"other_wealth",
+            "total_wealth":"total_wealth",
+            "member_wealth":"member_wealth"})
 
         self.datacollector.collect(self)
 
@@ -71,7 +80,14 @@ class RegionModel(Model):
         return C
 
     def compute_wealth(self):
-        
+        for agent in self.agents:
+            if agent.strategy == 1:
+                self.member_wealth += agent.wealth
+            else:
+                self.other_wealth += agent.wealth
+        self.total_wealth = self.member_wealth + self.other_wealth
+            
+
 
     def distribute_taxes(self):
 
@@ -144,10 +160,12 @@ class RegionModel(Model):
 
 
     def step(self):
+        for agent in self.agents: agent.has_interacted = False
         self.round += 1
         self.schedule.step()
         self.collaborator_count = self.count_collaborators()
         self.defector_count = len(self.agents) - self.collaborator_count
+        self.compute_wealth()
         #self.compute_union_payoff()
         self.av_coop = sum([agent.cooperativeness for agent in self.agents])/len(self.agents)
         self.datacollector.collect(self)
