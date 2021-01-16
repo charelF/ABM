@@ -20,26 +20,29 @@ from colormap import rgb2hex
 
 
 model_params = {
-    "union_payoff": UserSettableParameter(
-        "slider", "Initial Union Payoff", 0, -1.0, 1.0, 0.05
-    ),
     "basic_trade_reward" : UserSettableParameter(
-        "slider", "Basic trading reward", 3, 0, 10, 0.5
+        "slider", "Basic trading reward", 0.001, 0, 1, 0.001
     ),
     "member_trade_reward" : UserSettableParameter(
-        "slider", "Member trading reward", 3, 0, 10, 0.5
-    ),
-    "union_payoff_sensitivity" : UserSettableParameter(
-        "slider", "Union Payoff sensitivity", 1, 0, 10, 0.1
-    ),
-    "neighbor_influence" : UserSettableParameter(
-        "slider", "Neighbor influence", 0.01, 0, 0.1, 0.001
+        "slider", "Member trading reward", 0.001, 0, 1, 0.001
     ),
     "vision" : UserSettableParameter(
-        "slider", "Vision", 0, 0, 1, 0.1
+        "slider", "Vision", 1, 0, 1, 0.1
     ),
-    "union_payoff_history_max_length" : UserSettableParameter(
-        "slider", "Union payoff history max length", 10, 1, 50, 1
+    "max_eff": UserSettableParameter(
+        "slider", "Maximum efficiency", 1, 1.0, 2, 0.05
+    ),
+    "eu_tax": UserSettableParameter(
+        "slider", "Tax of EU per round", 0.1, 0, 1, 0.001
+    ),
+    "weight": UserSettableParameter(
+        "slider", "Coop weight", 1, 0, 10, 0.001
+    ),
+    "consumption": UserSettableParameter(
+        "slider", "Consumption", 0.1, 0, 1, 0.001
+    ),
+    "volatile": UserSettableParameter(
+        "slider", "Volatile", 0.1, 0, 2, 0.001
     ),
 }
 
@@ -63,7 +66,7 @@ def schelling_draw(agent):
 map_element = MapModule(schelling_draw, [57, 12], 3, 400, 800)
 type_chart = ChartModule([{"Label": 'defector_count', "Color": "Red"},
                           {"Label": 'collaborator_count', "Color": "Blue"}], 200, 500)
-payoff_chart = ChartModule([{"Label": 'union_payoff', "Color": "Green"}], 200, 500)
+payoff_chart = ChartModule([{"Label": 'av_coop', "Color": "Green"}], 200, 500)
 server = ModularServer(
     RegionModel, [map_element, type_chart, payoff_chart], "Warring nations", model_params
 )
