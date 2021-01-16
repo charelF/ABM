@@ -19,25 +19,30 @@ class RegionAgent(GeoAgent):
     def CC(self, neighbor):
         self.wealth += self.model.member_trade_reward * self.wealth
         neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
-        self.eu_bonus += (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        neighbor.eu_bonus += (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
 
 
     def CD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         #self.wealth += self.model.union_payoff
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        neighbor.fictional_bonus += (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
         
     def DC(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
         #neighbor.wealth += self.model.union_payoff
-        self.fictional_bonus += (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
 
     def DD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+
 
     def interact(self, neighbor):
         if self.strategy == 1:
@@ -101,7 +106,7 @@ class RegionAgent(GeoAgent):
             self.model.treasury += self.tax
         
         # update wealth based on efficiency
-        self.wealth = self.wealth * self.efficiency
+        self.wealth += self.wealth * self.efficiency
 
 
 
