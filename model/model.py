@@ -8,36 +8,19 @@ from agent import *
 import numpy as np
 import pprint
 
-# TODO: see if we can reimplement countries somehow, maybe the way they are
-# code is commented out since countries are not implemented right now
-# class Nation(dict, GeoAgent):
-
-#     def __init__(self, NUTS_ID):
-#         self.identifier = NUTS_ID
-#         # self.strat = 2
-#         self.areas = []
-#         self.size = 1
-#         self.interacted = False
-#         self.traded = True
-#         self.agressiveness = random.random()
-#         self.color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
-#         self.wealth = 10
-#         self.trades = 0
-#         dict.__init__(self)
-
 class RegionModel(Model):
     def __init__(self, basic_trade_reward, member_trade_reward,
-                vision, max_eff, eu_tax, weight, consumption, volatile):
+                vision, max_eff, eutax, weight, neighbor_influence, tax_influence):
         # set up arguments
         self.basic_trade_reward = basic_trade_reward
         self.member_trade_reward = member_trade_reward
         self.vision = vision
         self.treasury = 0
-        self.eu_tax = eu_tax
+        self.eutax = eutax
         self.weight = weight
         self.total_hardship = 0
-        self.consumption = consumption
-        self.volatile = volatile
+        self.neighbor_influence = neighbor_influence
+        self.tax_influence = tax_influence
 
         # set up other parameters
         self.round = 0
@@ -53,7 +36,7 @@ class RegionModel(Model):
         # set up agents
         for agent in self.agents:
             self.schedule.add(agent)
-            cooperativeness = max(min(np.random.normal(0, 1), 1), -1)
+            cooperativeness = random.uniform(-1, 1)#max(min(np.random.normal(0, 1), 1), -1)
             agent.cooperativeness = cooperativeness
             agent.strategy = 1 if cooperativeness > 0 else 2
             agent.wealth = 1
@@ -83,8 +66,8 @@ class RegionModel(Model):
     def count_collaborators(self):
         C = 0
         for agent in self.agents:
-            agent.eu_bonus = 0
-            agent.fictional_bonus = 0
+            # agent.eu_bonus = 0
+            # agent.fictional_bonus = 0
             if agent.strategy == 1:
                 C+=1
         return C
@@ -92,19 +75,21 @@ class RegionModel(Model):
     def distribute_taxes(self):
 
         # Hardship
-        self.total_hardship = 0
+        self.total_hardship = 0.000000001
         traded_agents = [agent for agent in self.agents if agent.strategy == 1]
         for agent in traded_agents:
             self.total_hardship += 1 - agent.cooperativeness
+            # hardship is opposite to cooperativeness
+            # lots of cooperativeness --> total hardship small
         
         for agent in traded_agents:
             distributed_wealth =  (1 - agent.cooperativeness)/ self.total_hardship * self.treasury
             agent.wealth += distributed_wealth
             self.treasury -= distributed_wealth
             if distributed_wealth + agent.eu_bonus < agent.tax:
-                agent.cooperativeness -= self.volatile
+                agent.cooperativeness -= self.tax_influence
             else:
-                agent.cooperativeness += self.volatile
+                agent.cooperativeness += self.tax_influence
 
             if agent.cooperativeness > 1:
                 agent.cooperativeness = 1
@@ -115,7 +100,7 @@ class RegionModel(Model):
         for agent in self.agents:
             #print(agent.NUTS_ID, agent.wealth)
             if agent.strategy == 2:
-                tax_payment = agent.wealth * self.eu_tax
+                tax_payment = agent.wealth * self.eutax
                 fictional_total_hardship = self.total_hardship + (1 - agent.cooperativeness)
                 try:
                     tax_distribution = (1 - agent.cooperativeness)/ fictional_total_hardship * self.treasury
@@ -123,9 +108,9 @@ class RegionModel(Model):
                     tax_distribution = 0
 
                 if tax_payment < tax_distribution + agent.fictional_bonus:
-                    agent.cooperativeness += self.volatile
+                    agent.cooperativeness += self.tax_influence
                 else:
-                    agent.cooperativeness -= self.volatile
+                    agent.cooperativeness -= self.tax_influence
 
                 if agent.cooperativeness > 1:
                     agent.cooperativeness = 1

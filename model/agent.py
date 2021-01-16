@@ -22,6 +22,7 @@ class RegionAgent(GeoAgent):
         self.eu_bonus += (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
         neighbor.eu_bonus += (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
 
+
     def CD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         #self.wealth += self.model.union_payoff
@@ -49,57 +50,66 @@ class RegionAgent(GeoAgent):
                 self.DC(neighbor)
             else:
                 self.DD(neighbor)
-                
-    def compare_neighs(self):
 
-        neighs = self.model.grid.get_neighbors(self)
-        if not neighs:
-            return 0
-        cooperating_neighs = 0
-        for neigh in neighs:
-            if neigh.strategy == 1:
-                cooperating_neighs += 1
-        return (cooperating_neighs/ len(neighs) - 1/2)
+    def update_cooperativeness(self, neighbor):
+            if self.strategy == 1:
+                # if I cooperate, my neighbors cooperativess will go up
+                neighbor.cooperativeness = min(neighbor.cooperativeness + self.model.neighbor_influence, 1)
+            else:
+                neighbor.cooperativeness = max(neighbor.cooperativeness - self.model.neighbor_influence, -1)
+            if neighbor.strategy == 1:
+                self.cooperativeness = min(self.cooperativeness + self.model.neighbor_influence, 1)
+            else:
+                self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
+                    
+
+    def compare_neighbors(self):
+        neighbors = self.model.grid.get_neighbors(self)
+        if not neighbors: return 0
+        neighbor_strats = [neighbor.strategy for neighbor in neighbors]
+        average_neighbor_strat = sum(neighbor_strats) / len(neighbor_strats)  # between 1 and 2
+        redistributed_average = (average_neighbor_strat * 2) - 3  # now between -1 and 1
+        return redistributed_average
+        # if not neighbors:
+        #     return 0
+        # cooperating_neighbors = 0
+        # for neigh in neighbors:
+        #     if neigh.strategy == 1:
+        #         cooperating_neighbors += 1
+        # return (cooperating_neighbors/ len(neighbors) - 1/2)
+
+    # def choose_strategy(self):
+    #     decision = (
+    #         self.cooperativeness
+    #         + self.model.union_payoff
+    #         + self.model.member_trade_reward
+    #         - self.model.basic_trade_reward
+    #         # + random.uniform(-0.1, 0.1)
+    #     )
+    #     if decision > 0:
+    #         self.strategy = 1
+    #     elif decision < 0:
+    #         self.strategy = 2
+    #     else:
+    #         self.strategy = random.choice([1,2])
+
+    def pay_tax(self):
+        self.tax = self.wealth * self.model.eutax
+        self.wealth = self.wealth * (1 - self.model.eutax)
+        self.model.treasury += self.tax
+        self.wealth = self.wealth * self.efficiency
 
     def choose_strategy(self):
         decision = (
             self.cooperativeness
-            + self.model.union_payoff
-            + self.model.member_trade_reward
-            - self.model.basic_trade_reward
-            # + random.uniform(-0.1, 0.1)
+            + self.compare_neighbors()
+            + random.uniform(-self.model.weight, self.model.weight)
         )
         if decision > 0:
-            self.strategy = 1
-        elif decision < 0:
-            self.strategy = 2
-        else:
-            self.strategy = random.choice([1,2])
-
-    def choose_strategy(self):
-        decision = (
-            # hardship
-            
-            # ratio of neighbours that coops
-            self.model.weight * self.cooperativeness
-            #+ self.model.member_trade_reward
-            #- self.model.basic_trade_reward
-            + self.compare_neighs()
-            # + random.uniform(-0.1, 0.1)
-        )
-        if decision > 0:
-
-            self.tax = self.wealth * self.model.eu_tax
-            self.wealth = self.wealth * (1 - self.model.eu_tax)
-            self.model.treasury += self.tax
-
             self.strategy = 1
         else:
             self.strategy = 2
 
-        self.wealth = self.wealth * self.efficiency
-        consumed = self.model.consumption * self.wealth
-        self.wealth -= consumed
 
     def get_neighbor(self):
         # there is a 1/(len(agents)) chance we trade with ourself lol
@@ -115,9 +125,10 @@ class RegionAgent(GeoAgent):
         
     def step(self):
         self.choose_strategy()
+        self.pay_tax()
         neighbor = self.get_neighbor()
         self.interact(neighbor)
-        #self.update_cooperativeness(neighbor)
+        self.update_cooperativeness(neighbor)
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)

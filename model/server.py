@@ -32,17 +32,17 @@ model_params = {
     "max_eff": UserSettableParameter(
         "slider", "Maximum efficiency", 1, 1.0, 2, 0.05
     ),
-    "eu_tax": UserSettableParameter(
+    "eutax": UserSettableParameter(
         "slider", "Tax of EU per round", 0.1, 0, 1, 0.001
     ),
     "weight": UserSettableParameter(
-        "slider", "Coop weight", 1, 0, 10, 0.001
+        "slider", "Decision stochasticity", 0.1, 0, 1, 0.05
     ),
-    "consumption": UserSettableParameter(
-        "slider", "Consumption", 0.1, 0, 1, 0.001
+    "neighbor_influence": UserSettableParameter(
+        "slider", "neighbor_influence", 0.01, 0, 0.2, 0.001
     ),
-    "volatile": UserSettableParameter(
-        "slider", "Volatile", 0.1, 0, 2, 0.001
+    "tax_influence": UserSettableParameter(
+        "slider", "tax_influence", 0.005, 0, 0.2, 0.001
     ),
 }
 
