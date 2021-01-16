@@ -8,131 +8,145 @@ from agent import *
 import numpy as np
 import pprint
 
-class Nation(dict, GeoAgent):
+# TODO: see if we can reimplement countries somehow, maybe the way they are
+# code is commented out since countries are not implemented right now
+# class Nation(dict, GeoAgent):
 
-    def __init__(self, NUTS_ID):
-        self.identifier = NUTS_ID
-        self.strat = 2
-        self.areas = []
-        self.size = 1
-        self.interacted = False
-        self.traded = True
-        self.agressiveness = random.random()
-        self.color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
-        self.wealth = 10
-        self.trades = 0
-        dict.__init__(self)
+#     def __init__(self, NUTS_ID):
+#         self.identifier = NUTS_ID
+#         # self.strat = 2
+#         self.areas = []
+#         self.size = 1
+#         self.interacted = False
+#         self.traded = True
+#         self.agressiveness = random.random()
+#         self.color = "#" + str(hex(np.random.randint(0, 0xFFFFFF))).upper()[2:2+6]
+#         self.wealth = 10
+#         self.trades = 0
+#         dict.__init__(self)
 
-class SchellingModel(Model):
-    """Model class for the Schelling segregation model."""
+class RegionModel(Model):
+    def __init__(self, basic_trade_reward, member_trade_reward,
+                vision, max_eff, eu_tax, weight, consumption, volatile):
 
-    def __init__(self, tax, trade_reward, deficit_reward):
+        # set up arguments
+        self.basic_trade_reward = basic_trade_reward
+        self.member_trade_reward = member_trade_reward
+        self.vision = vision
+        self.treasury = 0
+        self.eu_tax = eu_tax
+        self.weight = weight
+        self.total_hardship = 0
+        self.consumption = consumption
+        self.volatile = volatile
 
-        self.countries = []
-        self.trade_reward = trade_reward
-        self.deficit_reward = deficit_reward
-        # Params
-        self.tax = tax
+        # set up other parameters
         self.round = 0
-        self.average_agressiveness = 0
-
         self.schedule = RandomActivation(self)
         self.grid = GeoSpace()
-        self.datacollector = DataCollector({"test": "test"})
-
         self.running = True
-        # Set up the grid with patches for every NUTS region
-        AC = AgentCreator(SchellingAgent, {"model": self})
-        agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
-        self.grid.add_agents(agents)
-        ###
-        for agent in agents:
-            self.schedule.add(agent)
-            country_id = agent.NUTS_ID[0:2]
-            if country_id not in [country.identifier for country in self.countries]:
-                new_nation = Nation(country_id)
-                self.countries.append(new_nation)
-                agent.country = new_nation
-            else:
-                for country in self.countries:
-                    if country.identifier == country_id:
-                        country.areas.append(agent)
-                        country.size += 1
-                        agent.country = country
-        '''
-        countries_with_neighbors = []
-        for country in self.countries:
-            has_neighs = False
-            for area in country.areas:
-                neighs = self.grid.get_neighbors(area)
-                for neigh in neighs:
-                    if neigh.country.identifier != area.country.identifier:
-                        has_neighs = True
-            if has_neighs:
-                countries_with_neighbors.append(country)
 
-        self.countries = countries_with_neighbors
-        print(self.countries)
-        '''
-
-    def change_strategy(self):
-        """
-        Given the countries, picks the worst country
-        and changes strategy to empirical strategy 
-        of best country e.g. best did 10 trades and
-        1 deficit -> agressiveness 1 / 11
-        """
-        # Decide who is doing worst/best based on wealth
-        if self.round % 10 == 0:
-            # Number of countries that change strategy
-            k = 3
-            
-            worst_indices = np.argpartition([country.wealth for country in self.countries], k)[:k]
-            best_index = np.argmax([country.wealth for country in self.countries])
-
-            # Replace k worst countries
-            for index in worst_indices:
-                print(str(self.countries[index].identifier) +' changed from ' + str(self.countries[index].agressiveness) +' to ' + str((self.round - self.countries[best_index].trades) / self.round))
-                self.countries[index].agressiveness = (self.round - self.countries[best_index].trades) / self.round
-                
-    def tax_and_redistribute(self):
-
-        treasury = 0
-        total_wealth = 0
-
-        for country in self.countries:
-            # Take taxes
-            if country.wealth > 0:
-                tax = country.wealth * self.tax
-                country.wealth -= tax
-                treasury += tax 
-                total_wealth += country.wealth
-        print(total_wealth)
+        # set up grid
+        AC = AgentCreator(RegionAgent, {"model": self})
+        self.agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
+        self.grid.add_agents(self.agents)
         
-        # Count countries that traded and divide among 50% of them
-        trading_countries = [country for country in self.countries if country.traded]
-        entitled_countries = len(trading_countries)//2
-        worst_indices = np.argpartition([country.wealth for country in trading_countries], entitled_countries)[:entitled_countries]
-        for index in worst_indices:
-            trading_countries[index].wealth += treasury / entitled_countries
+        # set up agents
+        for agent in self.agents:
+            self.schedule.add(agent)
+            cooperativeness = max(min(np.random.normal(0, 1), 1), -1)
+            agent.cooperativeness = cooperativeness
+            agent.strategy = 1 if cooperativeness > 0 else 2
+            agent.wealth = 1
+            agent.efficiency = 1 + (max_eff - 1) * random.random()
+            agent.tax = 0
+            agent.eu_bonus = 0
+            agent.fictional_bonus = 0
+            # country_id = agent.NUTS_ID[0:2]
+            # if country_id not in [country.identifier for country in self.countries]:
+            #     new_nation = Nation(country_id)
+            #     self.countries.append(new_nation)
+            #     agent.country = new_nation
+            # else:
+            #     for country in self.countries:
+            #         if country.identifier == country_id:
+            #             country.areas.append(agent)
+            #             country.size += 1
+            #             agent.country = country
+        
+        # set up datacollector
+        self.collaborator_count = self.count_collaborators()
+        self.defector_count = len(self.agents) - self.collaborator_count
+        self.datacollector = DataCollector({"collaborator_count": "collaborator_count", "defector_count":"defector_count", "av_coop":"av_coop"})
+        self.datacollector.collect(self)
+
+    def count_collaborators(self):
+        C = 0
+        for agent in self.agents:
+            agent.eu_bonus = 0
+            agent.fictional_bonus = 0
+            if agent.strategy == 1:
+                C+=1
+        return C
+
+
+    def distribute_taxes(self):
+
+        # Hardship
+        self.total_hardship = 0
+        traded_agents = [agent for agent in self.agents if agent.strategy == 1]
+        for agent in traded_agents:
+            self.total_hardship += 1 - agent.cooperativeness
+        
+        for agent in traded_agents:
+            distributed_wealth =  (1 - agent.cooperativeness)/ self.total_hardship * self.treasury
+            agent.wealth += distributed_wealth
+            self.treasury -= distributed_wealth
+            if distributed_wealth + agent.eu_bonus < agent.tax:
+                agent.cooperativeness -= self.volatile
+            else:
+                agent.cooperativeness += self.volatile
+
+            if agent.cooperativeness > 1:
+                agent.cooperativeness = 1
+            elif agent.cooperativeness < -1:
+                agent.cooperativeness = -1
+
+    def calculate_benefit(self):
+        for agent in self.agents:
+            #print(agent.NUTS_ID, agent.wealth)
+            if agent.strategy == 2:
+                tax_payment = agent.wealth * self.eu_tax
+                fictional_total_hardship = self.total_hardship + (1 - agent.cooperativeness)
+                try:
+                    tax_distribution = (1 - agent.cooperativeness)/ fictional_total_hardship * self.treasury
+                except:
+                    tax_distribution = 0
+
+                if tax_payment < tax_distribution + agent.fictional_bonus:
+                    agent.cooperativeness += self.volatile
+                else:
+                    agent.cooperativeness -= self.volatile
+
+                if agent.cooperativeness > 1:
+                    agent.cooperativeness = 1
+                elif agent.cooperativeness < -1:
+                    agent.cooperativeness = -1                                
+                #print(agent.NUTS_ID , tax_payment, agent.fictional_bonus, tax_distribution)
 
 
     def step(self):
-        """Run one step of the model.
-
-        If All agents are happy, halt the model.
-        """
         self.round += 1
         self.schedule.step()
-        if self.tax != 0:
-            self.tax_and_redistribute()
-
-        self.change_strategy()
-
-        self.traded = 0
-        self.average_agressiveness = np.mean([country.agressiveness for country in self.countries])
-        for i, country in enumerate(self.countries):
-            country.interacted = False
-            if country.traded == True:
-                country.trades += 1
+        self.defector_count = len(self.agents) - self.collaborator_count
+        #self.compute_union_payoff()
+        self.av_coop = sum([agent.cooperativeness for agent in self.agents])/len(self.agents)
+        self.datacollector.collect(self)
+    
+        # stop model if only one type of agents left
+        self.calculate_benefit()
+        self.distribute_taxes()
+        self.collaborator_count = self.count_collaborators()
+        #if self.collaborator_count == 0 or self.defector_count == 0:
+            #self.running = False
         
