@@ -40,7 +40,7 @@ class RegionModel(Model):
             agent.cooperativeness = cooperativeness
             agent.strategy = 1 if cooperativeness > 0 else 2
             agent.wealth = 1
-            agent.efficiency = 1 + (max_eff - 1) * random.random()
+            agent.efficiency = 1 + max_eff * random.random()
             agent.tax = 0
             agent.eu_bonus = 0
             agent.fictional_bonus = 0

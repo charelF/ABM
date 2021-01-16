@@ -93,11 +93,17 @@ class RegionAgent(GeoAgent):
     #     else:
     #         self.strategy = random.choice([1,2])
 
-    def pay_tax(self):
-        self.tax = self.wealth * self.model.eutax
-        self.wealth = self.wealth * (1 - self.model.eutax)
-        self.model.treasury += self.tax
+    def update_wealth(self):
+        if self.strategy == 1:
+            # pay tax
+            self.tax = self.wealth * self.model.eutax
+            self.wealth = self.wealth * (1 - self.model.eutax)
+            self.model.treasury += self.tax
+        
+        # update wealth based on efficiency
         self.wealth = self.wealth * self.efficiency
+
+
 
     def choose_strategy(self):
         decision = (
@@ -125,7 +131,7 @@ class RegionAgent(GeoAgent):
         
     def step(self):
         self.choose_strategy()
-        self.pay_tax()
+        self.update_wealth
         neighbor = self.get_neighbor()
         self.interact(neighbor)
         self.update_cooperativeness(neighbor)
