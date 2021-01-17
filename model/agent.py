@@ -22,32 +22,33 @@ class RegionAgent(GeoAgent):
     def CC(self, neighbor):
         self.wealth += self.model.member_trade_reward * self.wealth
         neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
-        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * self.wealth
-        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
 
 
     def CD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# *  neighbor.wealth
-        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# *  self.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
         
 
     def DC(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * self.wealth
-        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * neighbor.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
 
 
     def DD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * self.wealth
-        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# *  neighbor.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
 
 
     def trade(self, neighbor):
+        print(self.wealth)
         if self.strategy == 1:
             if neighbor.strategy == 1:
                 self.CC(neighbor)
@@ -58,33 +59,27 @@ class RegionAgent(GeoAgent):
                 self.DC(neighbor)
             else:
                 self.DD(neighbor)
+        print(self.wealth)
 
 
     def compute_neighbor_influence(self):
         """
         adjusts cooperativness based on the cooperativeness of the neighbors
-        - adds/removes 'neighbor_influence' from cooperativeness
+        if average cooperativeness of all neighbors bigger (smaller) than 0:
+            adds (removes) 'neighbor_influence' from cooperativeness
         """
         neighbors = self.model.grid.get_neighbors(self)
-        if not neighbors:
-            return
-        neighbor_cooperativeness = [neighbor.cooperativeness for neighbor in neighbors]
-        average_neighbor_cooperativeness = sum(neighbor_cooperativeness) / len(neighbor_cooperativeness)
-        if average_neighbor_cooperativeness > 0:
-            self.cooperativeness = min(self.cooperativeness + self.model.neighbor_influence, 1)
-        elif average_neighbor_cooperativeness < 0:
-            self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
+        if neighbors:  # only if neighbors exist
+            neighbor_cooperativeness = [neighbor.cooperativeness for neighbor in neighbors]
+            average_neighbor_cooperativeness = sum(neighbor_cooperativeness) / len(neighbor_cooperativeness)
+            if average_neighbor_cooperativeness > 0:
+                self.cooperativeness = min(self.cooperativeness + self.model.neighbor_influence, 1)
+            elif average_neighbor_cooperativeness < 0:
+                self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
             
 
-    # def update_wealth(self):
-    #     if self.strategy == 1:
-    #         # pay tax
-    #         self.tax = self.wealth * self.model.eutax
-    #         self.wealth = self.wealth * (1 - self.model.eutax)
-    #         self.model.treasury += self.tax
-        
-    #     # update wealth based on efficiency
-    #     self.wealth += self.wealth * self.efficiency
+    def natural_growth(self):
+        self.wealth += self.wealth * self.efficiency
 
 
     def choose_strategy(self):
@@ -109,7 +104,7 @@ class RegionAgent(GeoAgent):
     def step(self):
         self.choose_strategy()
         self.compute_neighbor_influence()
-        # self.update_wealth()
+        self.natural_growth()
         if not self.has_traded:
             trade_partner = self.get_trade_partner()
             self.trade(trade_partner)

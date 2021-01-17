@@ -7,7 +7,7 @@ from utilities import get_color
 import numpy as np
 from colormap import rgb2hex
 
-# class HappyElement(TextElement):
+# class InfoElement(TextElement):
 #     """
 #     Display a text count of how many happy agents there are.
 #     """
@@ -16,21 +16,21 @@ from colormap import rgb2hex
 #         pass
 
 #     def render(self, model):
-#         return "temp" #"Average agression " + str("%.2f" % model.average_agressiveness)
+#         # return "Member Efficiency: ""temp" "Average agression " + str("%.2f" % model.average_agressiveness)
 
 
 model_params = {
     "basic_trade_reward" : UserSettableParameter(
-        "slider", "Basic trading reward", 0, 0, 1, 0.001
+        "slider", "Basic trading reward", 0, 0, 0.02, 0.001
     ),
     "member_trade_reward" : UserSettableParameter(
-        "slider", "Member trading reward", 0, 0, 1, 0.001
+        "slider", "Member trading reward", 0, 0, 0.02, 0.001
     ),
     "vision" : UserSettableParameter(
         "slider", "Vision", 1, 0, 1, 0.1
     ),
     "max_eff": UserSettableParameter(
-        "slider", "Maximum efficiency", 0, 0, 2, 0.001
+        "slider", "Maximum efficiency", 0, 0, 0.02, 0.001
     ),
     "eutax": UserSettableParameter(
         "slider", "Tax of EU per round", 0, 0, 1, 0.001
@@ -72,7 +72,12 @@ wealth_chart = ChartModule([
     {"Label": 'total_wealth', "Color": "Yellow"},
     {"Label": 'member_wealth', "Color": "Blue"},
 ], 200, 500)
+eff_chart = ChartModule([
+    {"Label": 'other_eff', "Color": "Red"},
+    {"Label": 'total_eff', "Color": "Yellow"},
+    {"Label": 'member_eff', "Color": "Blue"},
+], 200, 500)
 server = ModularServer(
-    RegionModel, [map_element, type_chart, wealth_chart, payoff_chart], "Warring nations", model_params
+    RegionModel, [map_element, type_chart, wealth_chart,eff_chart, payoff_chart], "Warring nations", model_params
 )
 server.launch()

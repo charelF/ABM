@@ -24,6 +24,9 @@ class RegionModel(Model):
         self.total_wealth = 0
         self.member_wealth = 0
         self.other_wealth = 0
+        self.total_eff = 0
+        self.member_eff = 0
+        self.other_eff = 0
 
         # set up other parameters
         self.round = 0
@@ -43,7 +46,7 @@ class RegionModel(Model):
             agent.cooperativeness = cooperativeness
             agent.strategy = 1 if cooperativeness > 0 else 2
             agent.wealth = 1
-            agent.efficiency = max_eff #1 + max_eff * random.random()
+            agent.efficiency = max(random.random() * max_eff, 0.0000001)
             agent.tax = 0
             agent.eu_bonus = 0
             agent.fictional_bonus = 0
@@ -68,7 +71,10 @@ class RegionModel(Model):
             "av_coop":"av_coop",
             "other_wealth":"other_wealth",
             "total_wealth":"total_wealth",
-            "member_wealth":"member_wealth"})
+            "member_wealth":"member_wealth",
+            "other_eff":"other_eff",
+            "total_eff":"total_eff",
+            "member_eff":"member_eff"})
 
         self.datacollector.collect(self)
 
@@ -80,6 +86,9 @@ class RegionModel(Model):
         return C
 
     def compute_wealth(self):
+        self.member_wealth = 0
+        self.other_wealth = 0
+        self.total_wealth = 0
         for agent in self.agents:
             if agent.strategy == 1:
                 self.member_wealth += agent.wealth
@@ -90,6 +99,21 @@ class RegionModel(Model):
         self.member_wealth = self.member_wealth / max(self.collaborator_count, 1)
         self.other_wealth = self.other_wealth / max(self.defector_count, 1)
         self.total_wealth = self.total_wealth / 320
+
+    def compute_eff(self):
+        self.member_eff = 0
+        self.other_eff = 0
+        self.total_eff = 0
+        for agent in self.agents:
+            if agent.strategy == 1:
+                self.member_eff += agent.efficiency
+            else:
+                self.other_eff += agent.efficiency
+        self.total_eff = self.member_eff + self.other_eff
+
+        self.member_eff = self.member_eff / max(self.collaborator_count, 1)
+        self.other_eff = self.other_eff / max(self.defector_count, 1)
+        self.total_eff = self.total_eff / 320
 
 
     def collect_taxes(self):
@@ -207,12 +231,13 @@ class RegionModel(Model):
 
 
     def step(self):
-        for agent in self.agents: agent.has_interacted = False
+        for agent in self.agents: agent.has_traded = False
         self.round += 1
         self.schedule.step()
         self.collaborator_count = self.count_collaborators()
         self.defector_count = len(self.agents) - self.collaborator_count
         self.compute_wealth()
+        self.compute_eff()
         #self.compute_union_payoff()
         self.av_coop = sum([agent.cooperativeness for agent in self.agents])/len(self.agents)
         
