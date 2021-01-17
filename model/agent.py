@@ -20,29 +20,43 @@ class RegionAgent(GeoAgent):
     def CC(self, neighbor):
         self.wealth += self.model.member_trade_reward * self.wealth
         neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
-        # self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        # neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        print(self.eu_bonus)
+        print(neighbor.eu_bonus)
+        print(self.fictional_bonus)
+        print(neighbor.fictional_bonus)
 
 
     def CD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
-        #self.wealth += self.model.union_payoff
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        # neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
-        # self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
+        print(self.eu_bonus)
+        print(neighbor.eu_bonus)
+        print(self.fictional_bonus)
+        print(neighbor.fictional_bonus)
         
     def DC(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        #neighbor.wealth += self.model.union_payoff
-        # self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        # neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        print(self.eu_bonus)
+        print(neighbor.eu_bonus)
+        print(self.fictional_bonus)
+        print(neighbor.fictional_bonus)
 
     def DD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        # self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        # neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        print(self.eu_bonus)
+        print(neighbor.eu_bonus)
+        print(self.fictional_bonus)
+        print(neighbor.fictional_bonus)
 
 
     def interact(self, neighbor):
@@ -142,7 +156,7 @@ class RegionAgent(GeoAgent):
             neighbor = self.get_neighbor()
             self.interact(neighbor)
             neighbor.has_interacted = True
-            self.update_cooperativeness(neighbor)
+            # self.update_cooperativeness(neighbor)
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)

@@ -115,12 +115,18 @@ class RegionModel(Model):
         traded_agents = [agent for agent in self.agents if agent.strategy == 1]
         for agent in traded_agents:
             # distribution = self.treasury / self.count_collaborators()
-            distribution = agent.tax 
-            agent.wealth += distribution
-            if distribution + agent.eu_bonus < agent.tax:
+            # distribution = agent.tax 
+            # agent.wealth += distribution
+            # if distribution + agent.eu_bonus < agent.tax:
+            # if distribution + agent.eu_bonus < agent.tax:
+            if agent.eu_bonus < 0:
                 agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
-            else:
+                4/0
+            elif agent.eu_bonus > 0:
                 agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
+                print(agent.eu_bonus)
+                3/0
+            
 
         self.treasury = 0
 
@@ -129,12 +135,18 @@ class RegionModel(Model):
         traded_agents = [agent for agent in self.agents if agent.strategy == 2]
         for agent in traded_agents:
             # distribution = (self.treasury + agent.wealth * self.eutax) / (self.count_collaborators() + 1)
-            distribution = agent.wealth * self.eutax
+            # distribution = agent.wealth * self.eutax
             # agent.wealth += distribution
-            if distribution + agent.fictional_bonus < distribution:
+            # if distribution + agent.fictional_bonus < distribution:
+            if agent.fictional_bonus < 0:
                 agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
-            else:
+                2/0
+            elif agent.fictional_bonus > 0:
                 agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
+                print(agent.fictional_bonus)
+                1/0
+            else:
+                print("ok")
 
 
         # for agent in self.agents:
