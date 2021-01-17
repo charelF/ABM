@@ -87,8 +87,6 @@ class RegionAgent(GeoAgent):
 
 
 
-
-
     def trade(self, neighbor):
         if self.strategy == 1:
             if neighbor.strategy == 1:

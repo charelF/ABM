@@ -47,6 +47,9 @@ model_params = {
     "randomness": UserSettableParameter(
     "slider", "randomness", 0, 0, 1, 0.001231441
     ),
+    "eu_strategy": UserSettableParameter(
+    'choice', 'Eu strategy', value='default',
+        choices=['default', 'capitalist', 'socialist', 'hardship'])
 }
 
 
