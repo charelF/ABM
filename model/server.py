@@ -20,12 +20,12 @@ from colormap import rgb2hex
 
 
 model_params = {
-    "basic_trade_reward" : UserSettableParameter(
-        "slider", "Basic trading reward", 0, 0, 0.02, 0.001
-    ),
-    "member_trade_reward" : UserSettableParameter(
-        "slider", "Member trading reward", 0, 0, 0.02, 0.001
-    ),
+    # "basic_trade_reward" : UserSettableParameter(
+    #     "slider", "Basic trading reward", 0, 0, 0.02, 0.001
+    # ),
+    # "member_trade_reward" : UserSettableParameter(
+    #     "slider", "Member trading reward", 0, 0, 0.02, 0.001
+    # ),
     "international_trade" : UserSettableParameter(
         "checkbox", "International_Trade", value=True
     ),
@@ -33,21 +33,25 @@ model_params = {
         "slider", "Maximum efficiency", 0, 0, 0.1, 0.001
     ),
     "eutax": UserSettableParameter(
-        "slider", "Tax of EU per round", 0, 0, 1, 0.001
+        "slider", "Tax of EU per round", 0, 0, 1, 0.01
     ),
     "neighbor_influence": UserSettableParameter(
-        "slider", "neighbor_influence", 0, 0, 0.2, 0.001
+        "slider", "neighbor_influence", 0, 0, 0.2, 0.01
     ),
     "tax_influence": UserSettableParameter(
-        "slider", "tax_influence", 0, 0, 0.2, 0.001
+        "slider", "tax_influence", 0, 0, 0.2, 0.01
     ),
     "member_trade_multiplier": UserSettableParameter(
-        "slider", "member_trade_multiplier", 1.1, 1, 1.001, 0.0000001
+    "slider", "member_trade_multiplier", 1, 0, 20, 0.5
+    ),
+    "randomness": UserSettableParameter(
+    "slider", "randomness", 0, 0, 1, 0.001231441
     ),
 }
 
 
 def schelling_draw(agent):
+    # https://mesa.readthedocs.io/en/stable/_modules/visualization/modules/CanvasGridVisualization.html
     """
     Portrayal Method for canvas
     """
@@ -60,6 +64,8 @@ def schelling_draw(agent):
         portrayal["color"] = "RoyalBlue"
     else:
         portrayal["color"] = "Tomato"
+    # portrayal["text"] = round(agent.cooperativeness, 2)
+    # portrayal["text_color"] = "White"
     return portrayal
 
 # happy_element = HappyElement()

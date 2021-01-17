@@ -9,19 +9,21 @@ import numpy as np
 import pprint
 
 class RegionModel(Model):
-    def __init__(self, basic_trade_reward, member_trade_reward,
+    def __init__(self,
+                # basic_trade_reward, member_trade_reward,
                 international_trade, max_eff, eutax, neighbor_influence,
-                tax_influence, member_trade_multiplier):
+                tax_influence, member_trade_multiplier, randomness):
 
         # set up parameters
-        self.basic_trade_reward = basic_trade_reward
-        self.member_trade_reward = member_trade_reward
+        # self.basic_trade_reward = basic_trade_reward
+        # self.member_trade_reward = member_trade_reward
         self.international_trade = international_trade
         self.max_eff = max_eff
         self.eutax = eutax
         self.neighbor_influence = neighbor_influence
         self.tax_influence = tax_influence
         self.member_trade_multiplier = member_trade_multiplier
+        self.randomness = randomness
 
         # initialise other attributes
         self.member_count = 0
@@ -51,6 +53,8 @@ class RegionModel(Model):
             agent.strategy = 1 if cooperativeness > 0 else 2
             agent.wealth = 1
             agent.efficiency = max(random.random() * self.max_eff, 0.0000001)
+            # agent.efficiency = random.uniform(1, self.max_eff * 2)
+            # agent.efficiency = random.uniform()
             # agent.efficiency = agent.SHAPE_AREA * max_eff
             agent.tax = 0
             agent.eu_bonus = 0
