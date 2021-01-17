@@ -8,7 +8,6 @@ import numpy as np
 from utilities import *
 
 class RegionAgent(GeoAgent):
-
     def __init__(self, unique_id, model, shape):
         super().__init__(unique_id, model, shape)
         self.wealth = None
@@ -19,11 +18,13 @@ class RegionAgent(GeoAgent):
         self.tax_payed = 0
     
 
+
     def CC(self, neighbor):
         self.wealth += self.model.member_trade_reward * self.wealth
         neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
         self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
         neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+
 
 
     def CD(self, neighbor):
@@ -33,11 +34,13 @@ class RegionAgent(GeoAgent):
         self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
         
 
+
     def DC(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
         self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
         neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+
 
 
     def DD(self, neighbor):
@@ -47,8 +50,8 @@ class RegionAgent(GeoAgent):
         neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
 
 
+
     def trade(self, neighbor):
-        print(self.wealth)
         if self.strategy == 1:
             if neighbor.strategy == 1:
                 self.CC(neighbor)
@@ -59,7 +62,7 @@ class RegionAgent(GeoAgent):
                 self.DC(neighbor)
             else:
                 self.DD(neighbor)
-        print(self.wealth)
+
 
 
     def compute_neighbor_influence(self):
@@ -78,8 +81,10 @@ class RegionAgent(GeoAgent):
                 self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
             
 
+
     def natural_growth(self):
         self.wealth += self.wealth * self.efficiency
+
 
 
     def choose_strategy(self):
@@ -89,9 +94,9 @@ class RegionAgent(GeoAgent):
             self.strategy = 2
 
 
+
     def get_trade_partner(self):
-        # there is a 1/(len(agents)) chance we trade with ourself lol
-        if random.random() < self.model.vision:
+        if self.model.international_trade:
             trade_partner = random.choice([agent for agent in self.model.agents if agent.has_traded == False])
         else:
             try:
@@ -101,6 +106,8 @@ class RegionAgent(GeoAgent):
     
         return trade_partner
         
+
+
     def step(self):
         self.choose_strategy()
         self.compute_neighbor_influence()
@@ -110,6 +117,7 @@ class RegionAgent(GeoAgent):
             self.trade(trade_partner)
             trade_partner.has_traded = True
         
+
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)
