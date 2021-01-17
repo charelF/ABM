@@ -86,10 +86,54 @@ class RegionModel(Model):
             else:
                 self.other_wealth += agent.wealth
         self.total_wealth = self.member_wealth + self.other_wealth
+
+        self.member_wealth = self.member_wealth / max(self.collaborator_count, 1)
+        self.other_wealth = self.other_wealth / max(self.defector_count, 1)
+        self.total_wealth = self.total_wealth / 320
+
+
+    def collect_taxes(self):
+        members = [agent for agent in self.agents if agent.strategy == 1]
+        for agent in members:
+            tax = agent.wealth * self.eutax
+            agent.tax_payed = tax
+            agent.wealth -= tax
+            self.treasury += tax
+
+    def distribute_benefits(self):
+        members = [agent for agent in self.agents if agent.strategy == 1]
+        if not members:
+            self.running = False
+            return
+        benefit = self.treasury / len(members)
+        for agent in members:
+            agent.wealth += benefit
+            if benefit + agent.eu_bonus > agent.tax_payed:
+                agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
+            elif benefit  + agent.eu_bonus < agent.tax_payed:
+                agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
+                
+        self.treasury = 0
+
+    def compute_virtual_benefits(self):
+        others = [agent for agent in self.agents if agent.strategy == 2]
+        members = [agent for agent in self.agents if agent.strategy == 1]
+        if not members or not others:
+            self.running = False
+            return
+        for agent in others:
+            virtual_tax_payed = agent.wealth * self.eutax
+            virtual_treasury = self.treasury + virtual_tax_payed
+            virtual_benefit = virtual_treasury / (len(members) + 1)
+            if virtual_benefit + agent.fictional_bonus > virtual_tax_payed:
+                agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
+            elif virtual_benefit + agent.fictional_bonus < virtual_tax_payed:
+                agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
+
             
 
 
-    def distribute_taxes(self):
+    # def distribute_taxes(self):
 
         # # Hardship
         # self.total_hardship = 0.000000001
@@ -112,54 +156,54 @@ class RegionModel(Model):
         #         agent.cooperativeness = 1
         #     elif agent.cooperativeness < -1:
         #         agent.cooperativeness = -1
-        traded_agents = [agent for agent in self.agents if agent.strategy == 1]
-        for agent in traded_agents:
-            # distribution = self.treasury / self.count_collaborators()
-            # distribution = agent.tax 
-            # agent.wealth += distribution
-            # if distribution + agent.eu_bonus < agent.tax:
-            # if distribution + agent.eu_bonus < agent.tax:
-            if agent.eu_bonus < 0:
-                agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
-            elif agent.eu_bonus > 0:
-                agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
+        # traded_agents = [agent for agent in self.agents if agent.strategy == 1]
+        # for agent in traded_agents:
+        #     # distribution = self.treasury / self.count_collaborators()
+        #     # distribution = agent.tax 
+        #     # agent.wealth += distribution
+        #     # if distribution + agent.eu_bonus < agent.tax:
+        #     # if distribution + agent.eu_bonus < agent.tax:
+        #     if agent.eu_bonus < 0:
+        #         agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
+        #     elif agent.eu_bonus > 0:
+        #         agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
 
-        self.treasury = 0
-
-
-    def calculate_benefit(self):
-        traded_agents = [agent for agent in self.agents if agent.strategy == 2]
-        for agent in traded_agents:
-            # distribution = (self.treasury + agent.wealth * self.eutax) / (self.count_collaborators() + 1)
-            # distribution = agent.wealth * self.eutax
-            # agent.wealth += distribution
-            # if distribution + agent.fictional_bonus < distribution:
-            if agent.fictional_bonus < 0:
-                agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
-            elif agent.fictional_bonus > 0:
-                agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
+        # self.treasury = 0
 
 
-        # for agent in self.agents:
-        #     #print(agent.NUTS_ID, agent.wealth)
-        #     if agent.strategy == 2:
-        #         tax_payment = agent.wealth * self.eutax
-        #         fictional_total_hardship = self.total_hardship + (1 - agent.cooperativeness)
-        #         try:
-        #             tax_distribution = (1 - agent.cooperativeness)/ fictional_total_hardship * self.treasury
-        #         except:
-        #             tax_distribution = 0
+    # def calculate_benefit(self):
+    #     traded_agents = [agent for agent in self.agents if agent.strategy == 2]
+    #     for agent in traded_agents:
+    #         # distribution = (self.treasury + agent.wealth * self.eutax) / (self.count_collaborators() + 1)
+    #         # distribution = agent.wealth * self.eutax
+    #         # agent.wealth += distribution
+    #         # if distribution + agent.fictional_bonus < distribution:
+    #         if agent.fictional_bonus < 0:
+    #             agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
+    #         elif agent.fictional_bonus > 0:
+    #             agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
 
-        #         if tax_payment < tax_distribution + agent.fictional_bonus:
-        #             agent.cooperativeness += self.tax_influence
-        #         else:
-        #             agent.cooperativeness -= self.tax_influence
 
-        #         if agent.cooperativeness > 1:
-        #             agent.cooperativeness = 1
-        #         elif agent.cooperativeness < -1:
-        #             agent.cooperativeness = -1                                
-                #print(agent.NUTS_ID , tax_payment, agent.fictional_bonus, tax_distribution)
+    #     # for agent in self.agents:
+    #     #     #print(agent.NUTS_ID, agent.wealth)
+    #     #     if agent.strategy == 2:
+    #     #         tax_payment = agent.wealth * self.eutax
+    #     #         fictional_total_hardship = self.total_hardship + (1 - agent.cooperativeness)
+    #     #         try:
+    #     #             tax_distribution = (1 - agent.cooperativeness)/ fictional_total_hardship * self.treasury
+    #     #         except:
+    #     #             tax_distribution = 0
+
+    #     #         if tax_payment < tax_distribution + agent.fictional_bonus:
+    #     #             agent.cooperativeness += self.tax_influence
+    #     #         else:
+    #     #             agent.cooperativeness -= self.tax_influence
+
+    #     #         if agent.cooperativeness > 1:
+    #     #             agent.cooperativeness = 1
+    #     #         elif agent.cooperativeness < -1:
+    #     #             agent.cooperativeness = -1                                
+    #             #print(agent.NUTS_ID , tax_payment, agent.fictional_bonus, tax_distribution)
 
 
     def step(self):
@@ -171,11 +215,41 @@ class RegionModel(Model):
         self.compute_wealth()
         #self.compute_union_payoff()
         self.av_coop = sum([agent.cooperativeness for agent in self.agents])/len(self.agents)
-        self.datacollector.collect(self)
+        
     
         # stop model if only one type of agents left
-        self.calculate_benefit()
-        self.distribute_taxes()
+        # self.calculate_benefit()
+        # self.distribute_taxes()
+
+        self.collaborator_count = self.count_collaborators()
+        self.defector_count = len(self.agents) - self.collaborator_count
+        if self.collaborator_count == 0 or self.defector_count == 0:
+            self.running = False
+
+        self.collect_taxes()
+
+        self.collaborator_count = self.count_collaborators()
+        self.defector_count = len(self.agents) - self.collaborator_count
+        if self.collaborator_count == 0 or self.defector_count == 0:
+            self.running = False
+
+
+        self.compute_virtual_benefits()
+
+
+        self.collaborator_count = self.count_collaborators()
+        self.defector_count = len(self.agents) - self.collaborator_count
+        if self.collaborator_count == 0 or self.defector_count == 0:
+            self.running = False
+
+
+
+        self.distribute_benefits()
+
+
+
+
         
         #if self.collaborator_count == 0 or self.defector_count == 0:
             #self.running = False
+        self.datacollector.collect(self)

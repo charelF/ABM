@@ -15,35 +15,39 @@ class RegionAgent(GeoAgent):
         self.cooperativeness = None  # between -1 and 1
         self.strategy = None  # 1 = cooperate, 2 = defect
         self.efficiency = None
-        self.has_interacted = False
+        self.has_traded = False
+        self.tax_payed = 0
     
+
     def CC(self, neighbor):
         self.wealth += self.model.member_trade_reward * self.wealth
         neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
-        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * neighbor.wealth
 
 
     def CD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
-        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# *  neighbor.wealth
+        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# *  self.wealth
         
+
     def DC(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * self.wealth
+        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * neighbor.wealth
+
 
     def DD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# * self.wealth
+        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward)# *  neighbor.wealth
 
 
-    def interact(self, neighbor):
+    def trade(self, neighbor):
         if self.strategy == 1:
             if neighbor.strategy == 1:
                 self.CC(neighbor)
@@ -55,7 +59,12 @@ class RegionAgent(GeoAgent):
             else:
                 self.DD(neighbor)
 
-    def compare_neighbors(self):
+
+    def compute_neighbor_influence(self):
+        """
+        adjusts cooperativness based on the cooperativeness of the neighbors
+        - adds/removes 'neighbor_influence' from cooperativeness
+        """
         neighbors = self.model.grid.get_neighbors(self)
         if not neighbors:
             return
@@ -67,61 +76,44 @@ class RegionAgent(GeoAgent):
             self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
             
 
-    # def choose_strategy(self):
-    #     decision = (
-    #         self.cooperativeness
-    #         + self.model.union_payoff
-    #         + self.model.member_trade_reward
-    #         - self.model.basic_trade_reward
-    #         # + random.uniform(-0.1, 0.1)
-    #     )
-    #     if decision > 0:
-    #         self.strategy = 1
-    #     elif decision < 0:
-    #         self.strategy = 2
-    #     else:
-    #         self.strategy = random.choice([1,2])
-
-    def update_wealth(self):
-        if self.strategy == 1:
-            # pay tax
-            self.tax = self.wealth * self.model.eutax
-            self.wealth = self.wealth * (1 - self.model.eutax)
-            self.model.treasury += self.tax
+    # def update_wealth(self):
+    #     if self.strategy == 1:
+    #         # pay tax
+    #         self.tax = self.wealth * self.model.eutax
+    #         self.wealth = self.wealth * (1 - self.model.eutax)
+    #         self.model.treasury += self.tax
         
-        # update wealth based on efficiency
-        self.wealth += self.wealth * self.efficiency
-
+    #     # update wealth based on efficiency
+    #     self.wealth += self.wealth * self.efficiency
 
 
     def choose_strategy(self):
-        if self.cooperativeness > 0:
+        if self.cooperativeness > 0: 
             self.strategy = 1
         else:
             self.strategy = 2
 
 
-    def get_neighbor(self):
+    def get_trade_partner(self):
         # there is a 1/(len(agents)) chance we trade with ourself lol
         if random.random() < self.model.vision:
-            neighbor = random.choice([agent for agent in self.model.agents if agent.has_interacted == False])
+            trade_partner = random.choice([agent for agent in self.model.agents if agent.has_traded == False])
         else:
             try:
-                neighbor = random.choice([agent for agent in self.model.grid.get_neighbors(self) if agent.has_interacted == False])
+                trade_partner = random.choice([agent for agent in self.model.grid.get_neighbors(self) if agent.has_traded == False])
             except:
-                neighbor = random.choice([agent for agent in self.model.agents if agent.has_interacted == False])
+                trade_partner = random.choice([agent for agent in self.model.agents if agent.has_traded == False])
     
-        return neighbor
+        return trade_partner
         
     def step(self):
         self.choose_strategy()
-        self.update_wealth
-        if not self.has_interacted:
-            neighbor = self.get_neighbor()
-            self.interact(neighbor)
-            neighbor.has_interacted = True
-            self.compare_neighbors()
-
+        self.compute_neighbor_influence()
+        # self.update_wealth()
+        if not self.has_traded:
+            trade_partner = self.get_trade_partner()
+            self.trade(trade_partner)
+            trade_partner.has_traded = True
         
 
     def __repr__(self):
