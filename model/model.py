@@ -10,7 +10,8 @@ import pprint
 
 class RegionModel(Model):
     def __init__(self, basic_trade_reward, member_trade_reward,
-                international_trade, max_eff, eutax, neighbor_influence, tax_influence):
+                international_trade, max_eff, eutax, neighbor_influence,
+                tax_influence, member_trade_multiplier):
 
         # set up parameters
         self.basic_trade_reward = basic_trade_reward
@@ -20,6 +21,7 @@ class RegionModel(Model):
         self.eutax = eutax
         self.neighbor_influence = neighbor_influence
         self.tax_influence = tax_influence
+        self.member_trade_multiplier = member_trade_multiplier
 
         # initialise other attributes
         self.member_count = 0

@@ -6,6 +6,7 @@ from mesa_geo import GeoSpace
 import random
 import numpy as np
 from utilities import *
+import math
 
 class RegionAgent(GeoAgent):
     def __init__(self, unique_id, model, shape):
@@ -20,34 +21,51 @@ class RegionAgent(GeoAgent):
 
 
     def CC(self, neighbor):
-        self.wealth += self.model.member_trade_reward * self.wealth
-        neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
-        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        # self.wealth += self.model.member_trade_reward * self.wealth
+        # neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
+        # self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        # neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        self.wealth += math.log(self.wealth + neighbor.wealth) / 2000) * self.model.member_trade_multiplier
+        neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000) * self.model.member_trade_multiplier
+        self.eu_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
+        neighbor.eu_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
 
 
 
     def CD(self, neighbor):
-        self.wealth += self.model.basic_trade_reward * self.wealth
-        neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
-        self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
+        # self.wealth += self.model.basic_trade_reward * self.wealth
+        # neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
+        # neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        # self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
+        self.wealth += ((self.wealth + neighbor.wealth) / 2000)
+        neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000)
+        self.eu_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
+        neighbor.fictional_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
         
 
 
     def DC(self, neighbor):
-        self.wealth += self.model.basic_trade_reward * self.wealth
-        neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        # self.wealth += self.model.basic_trade_reward * self.wealth
+        # neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
+        # self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        # neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
+        self.wealth += ((self.wealth + neighbor.wealth) / 2000)
+        neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000)
+        self.fictional_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
+        neighbor.eu_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
+        
 
 
 
     def DD(self, neighbor):
-        self.wealth += self.model.basic_trade_reward * self.wealth
-        neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        # self.wealth += self.model.basic_trade_reward * self.wealth
+        # neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
+        # self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
+        # neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
+        self.wealth += ((self.wealth + neighbor.wealth) / 2000)
+        neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000)
+        self.fictional_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
+        neighbor.fictional_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
 
 
 

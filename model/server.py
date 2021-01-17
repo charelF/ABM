@@ -41,6 +41,9 @@ model_params = {
     "tax_influence": UserSettableParameter(
         "slider", "tax_influence", 0, 0, 0.2, 0.001
     ),
+    "member_trade_multiplier": UserSettableParameter(
+        "slider", "member_trade_multiplier", 1.1, 1, 1.001, 0.0000001
+    ),
 }
 
 
