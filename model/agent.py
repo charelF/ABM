@@ -22,10 +22,6 @@ class RegionAgent(GeoAgent):
         neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
         self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
         neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
-        print(self.eu_bonus)
-        print(neighbor.eu_bonus)
-        print(self.fictional_bonus)
-        print(neighbor.fictional_bonus)
 
 
     def CD(self, neighbor):
@@ -33,30 +29,18 @@ class RegionAgent(GeoAgent):
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
         neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
         self.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
-        print(self.eu_bonus)
-        print(neighbor.eu_bonus)
-        print(self.fictional_bonus)
-        print(neighbor.fictional_bonus)
         
     def DC(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
         self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
         neighbor.eu_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
-        print(self.eu_bonus)
-        print(neighbor.eu_bonus)
-        print(self.fictional_bonus)
-        print(neighbor.fictional_bonus)
 
     def DD(self, neighbor):
         self.wealth += self.model.basic_trade_reward * self.wealth
         neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
         self.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
         neighbor.fictional_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
-        print(self.eu_bonus)
-        print(neighbor.eu_bonus)
-        print(self.fictional_bonus)
-        print(neighbor.fictional_bonus)
 
 
     def interact(self, neighbor):
@@ -71,32 +55,17 @@ class RegionAgent(GeoAgent):
             else:
                 self.DD(neighbor)
 
-    def update_cooperativeness(self, neighbor):
-            if self.strategy == 1:
-                # if I cooperate, my neighbors cooperativess will go up
-                neighbor.cooperativeness = min(neighbor.cooperativeness + self.model.neighbor_influence, 1)
-            else:
-                neighbor.cooperativeness = max(neighbor.cooperativeness - self.model.neighbor_influence, -1)
-            if neighbor.strategy == 1:
-                self.cooperativeness = min(self.cooperativeness + self.model.neighbor_influence, 1)
-            else:
-                self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
-                    
-
     def compare_neighbors(self):
         neighbors = self.model.grid.get_neighbors(self)
-        if not neighbors: return 0
-        neighbor_strats = [neighbor.strategy for neighbor in neighbors]
-        average_neighbor_strat = sum(neighbor_strats) / len(neighbor_strats)  # between 1 and 2
-        redistributed_average = (average_neighbor_strat * 2) - 3  # now between -1 and 1
-        return redistributed_average
-        # if not neighbors:
-        #     return 0
-        # cooperating_neighbors = 0
-        # for neigh in neighbors:
-        #     if neigh.strategy == 1:
-        #         cooperating_neighbors += 1
-        # return (cooperating_neighbors/ len(neighbors) - 1/2)
+        if not neighbors:
+            return
+        neighbor_cooperativeness = [neighbor.cooperativeness for neighbor in neighbors]
+        average_neighbor_cooperativeness = sum(neighbor_cooperativeness) / len(neighbor_cooperativeness)
+        if average_neighbor_cooperativeness > 0:
+            self.cooperativeness = min(self.cooperativeness + self.model.neighbor_influence, 1)
+        elif average_neighbor_cooperativeness < 0:
+            self.cooperativeness = max(self.cooperativeness - self.model.neighbor_influence, -1)
+            
 
     # def choose_strategy(self):
     #     decision = (
@@ -126,12 +95,7 @@ class RegionAgent(GeoAgent):
 
 
     def choose_strategy(self):
-        decision = (
-            self.cooperativeness
-            # + self.compare_neighbors()
-            # + random.uniform(-self.model.weight, self.model.weight)
-        )
-        if decision > 0:
+        if self.cooperativeness > 0:
             self.strategy = 1
         else:
             self.strategy = 2
@@ -152,11 +116,13 @@ class RegionAgent(GeoAgent):
     def step(self):
         self.choose_strategy()
         self.update_wealth
-        if self.has_interacted:
+        if not self.has_interacted:
             neighbor = self.get_neighbor()
             self.interact(neighbor)
             neighbor.has_interacted = True
-            # self.update_cooperativeness(neighbor)
+            self.compare_neighbors()
+
+        
 
     def __repr__(self):
         return "Agent " + str(self.unique_id)

@@ -121,12 +121,8 @@ class RegionModel(Model):
             # if distribution + agent.eu_bonus < agent.tax:
             if agent.eu_bonus < 0:
                 agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
-                4/0
             elif agent.eu_bonus > 0:
                 agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
-                print(agent.eu_bonus)
-                3/0
-            
 
         self.treasury = 0
 
@@ -140,13 +136,8 @@ class RegionModel(Model):
             # if distribution + agent.fictional_bonus < distribution:
             if agent.fictional_bonus < 0:
                 agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
-                2/0
             elif agent.fictional_bonus > 0:
                 agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
-                print(agent.fictional_bonus)
-                1/0
-            else:
-                print("ok")
 
 
         # for agent in self.agents:

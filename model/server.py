@@ -21,19 +21,19 @@ from colormap import rgb2hex
 
 model_params = {
     "basic_trade_reward" : UserSettableParameter(
-        "slider", "Basic trading reward", 0.050, 0, 1, 0.001
+        "slider", "Basic trading reward", 0, 0, 1, 0.001
     ),
     "member_trade_reward" : UserSettableParameter(
-        "slider", "Member trading reward", 0.050, 0, 1, 0.001
+        "slider", "Member trading reward", 0, 0, 1, 0.001
     ),
     "vision" : UserSettableParameter(
         "slider", "Vision", 1, 0, 1, 0.1
     ),
     "max_eff": UserSettableParameter(
-        "slider", "Maximum efficiency", 0.050, 0, 2, 0.001
+        "slider", "Maximum efficiency", 0, 0, 2, 0.001
     ),
     "eutax": UserSettableParameter(
-        "slider", "Tax of EU per round", 0.3, 0, 1, 0.001
+        "slider", "Tax of EU per round", 0, 0, 1, 0.001
     ),
     "weight": UserSettableParameter(
         "slider", "Decision stochasticity", 0, 0, 1, 0.05
@@ -42,7 +42,7 @@ model_params = {
         "slider", "neighbor_influence", 0, 0, 0.2, 0.001
     ),
     "tax_influence": UserSettableParameter(
-        "slider", "tax_influence", 0.2, 0, 0.2, 0.001
+        "slider", "tax_influence", 0, 0, 0.2, 0.001
     ),
 }
 
