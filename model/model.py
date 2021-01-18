@@ -58,8 +58,8 @@ class RegionModel(Model):
             # agent.efficiency = random.uniform()
             # agent.efficiency = agent.SHAPE_AREA * max_eff
             agent.tax = 0
-            agent.eu_bonus = 0
-            agent.fictional_bonus = 0
+            agent.trade_bonus = 0
+            # agent.trade_bonus = 0
         
         # set up datacollector
         self.datacollector = DataCollector({
@@ -141,9 +141,9 @@ class RegionModel(Model):
             benefit = self.treasury / len(members)
             for agent in members:
                 agent.wealth += benefit
-                if benefit + agent.eu_bonus > agent.tax_payed:
+                if benefit + agent.trade_bonus > agent.tax_payed:
                     agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
-                elif benefit  + agent.eu_bonus < agent.tax_payed:
+                elif benefit  + agent.trade_bonus < agent.tax_payed:
                     agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
 
         elif self.eu_strategy == "hardship":
@@ -153,9 +153,9 @@ class RegionModel(Model):
             for agent in members:
                 agent_benefit = ((1 - agent.cooperativeness) / total_hardship) * self.treasury
                 agent.wealth += agent_benefit
-                if agent_benefit + agent.eu_bonus > agent.tax_payed:
+                if agent_benefit + agent.trade_bonus > agent.tax_payed:
                     agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
-                elif agent_benefit  + agent.eu_bonus < agent.tax_payed:
+                elif agent_benefit  + agent.trade_bonus < agent.tax_payed:
                     agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
         
         else:
@@ -179,9 +179,9 @@ class RegionModel(Model):
                 virtual_tax_payed = agent.wealth * self.eutax
                 virtual_treasury = self.treasury + virtual_tax_payed
                 virtual_benefit = virtual_treasury / (len(members) + 1)
-                if virtual_benefit + agent.fictional_bonus > virtual_tax_payed:
+                if virtual_benefit + agent.trade_bonus > virtual_tax_payed:
                     agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
-                elif virtual_benefit + agent.fictional_bonus < virtual_tax_payed:
+                elif virtual_benefit + agent.trade_bonus < virtual_tax_payed:
                     agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
 
         elif self.eu_strategy == "hardship":
@@ -193,9 +193,9 @@ class RegionModel(Model):
                 virtual_treasury = self.treasury + virtual_tax_payed
                 virtual_benefit = (1 / (total_hardship + 1)) * virtual_treasury
                 # hardship of every defector is = max hardship = 1
-                if virtual_benefit + agent.fictional_bonus > virtual_tax_payed:
+                if virtual_benefit + agent.trade_bonus > virtual_tax_payed:
                     agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
-                elif virtual_benefit + agent.fictional_bonus < virtual_tax_payed:
+                elif virtual_benefit + agent.trade_bonus < virtual_tax_payed:
                     agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
         
         else:
