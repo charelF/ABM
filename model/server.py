@@ -30,10 +30,10 @@ model_params = {
         "checkbox", "International_Trade", value=True
     ),
     "max_eff": UserSettableParameter(
-        "slider", "Maximum efficiency", 0, 0, 0.1, 0.001
+        "slider", "Maximum efficiency", 1.1, 1, 20, 0.001
     ),
     "eutax": UserSettableParameter(
-        "slider", "Tax of EU per round", 0, 0, 1, 0.01
+        "slider", "Tax of EU per round", 1.1, 1, 20, 0.001
     ),
     "neighbor_influence": UserSettableParameter(
         "slider", "neighbor_influence", 0, 0, 0.2, 0.01
@@ -42,7 +42,7 @@ model_params = {
         "slider", "tax_influence", 0, 0, 0.2, 0.01
     ),
     "member_trade_multiplier": UserSettableParameter(
-    "slider", "member_trade_multiplier", 1, 0, 20, 0.5
+    "slider", "member_trade_multiplier", 1.1, 1, 20, 0.001
     ),
     "randomness": UserSettableParameter(
     "slider", "randomness", 0, 0, 1, 0.001231441

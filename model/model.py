@@ -52,9 +52,9 @@ class RegionModel(Model):
             cooperativeness = random.uniform(-1, 1)
             agent.cooperativeness = cooperativeness
             agent.strategy = 1 if cooperativeness > 0 else 2
-            agent.wealth = 1
-            agent.efficiency = max(random.random() * self.max_eff, 0.0000001)
-            # agent.efficiency = random.uniform(1, self.max_eff * 2)
+            agent.wealth = 10  # to test out log we cant have it be 1
+            # agent.efficiency = max(random.random() * self.max_eff * , 0.0000001)
+            agent.efficiency = random.uniform(1, ((self.max_eff - 1) * 2)+1)
             # agent.efficiency = random.uniform()
             # agent.efficiency = agent.SHAPE_AREA * max_eff
             agent.tax = 0
@@ -124,7 +124,7 @@ class RegionModel(Model):
             self.running = False
             return
         for agent in members:
-            tax = agent.wealth * self.eutax
+            tax = math.log(agent.wealth) * self.eutax  # log test
             agent.tax_payed = tax
             agent.wealth -= tax
             self.treasury += tax
@@ -176,7 +176,7 @@ class RegionModel(Model):
 
         if self.eu_strategy == "default":
             for agent in others:
-                virtual_tax_payed = agent.wealth * self.eutax
+                virtual_tax_payed = math.log(agent.wealth) * self.eutax  # log edit
                 virtual_treasury = self.treasury + virtual_tax_payed
                 virtual_benefit = virtual_treasury / (len(members) + 1)
                 if virtual_benefit + agent.trade_bonus > virtual_tax_payed:
@@ -189,7 +189,7 @@ class RegionModel(Model):
             for agent in members:
                 total_hardship += 1 - agent.cooperativeness
             for agent in others:
-                virtual_tax_payed = agent.wealth * self.eutax
+                virtual_tax_payed = math.log(agent.wealth) * self.eutax  # log edit
                 virtual_treasury = self.treasury + virtual_tax_payed
                 virtual_benefit = (1 / (total_hardship + 1)) * virtual_treasury
                 # hardship of every defector is = max hardship = 1
