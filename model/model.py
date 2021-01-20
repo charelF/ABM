@@ -124,7 +124,8 @@ class RegionModel(Model):
             self.running = False
             return
         for agent in members:
-            tax = math.log(agent.wealth) * self.eutax  # log test
+            # tax = math.log(agent.wealth) * self.eutax  # log test
+            tax = agent.wealth * self.eutax
             agent.tax_payed = tax
             agent.wealth -= tax
             self.treasury += tax
@@ -176,7 +177,8 @@ class RegionModel(Model):
 
         if self.eu_strategy == "default":
             for agent in others:
-                virtual_tax_payed = math.log(agent.wealth) * self.eutax  # log edit
+                # virtual_tax_payed = math.log(agent.wealth) * self.eutax  # log edit
+                virtual_tax_payed = agent.wealth * self.eutax  # log edit
                 virtual_treasury = self.treasury + virtual_tax_payed
                 virtual_benefit = virtual_treasury / (len(members) + 1)
                 if virtual_benefit + agent.trade_bonus > virtual_tax_payed:
@@ -189,7 +191,8 @@ class RegionModel(Model):
             for agent in members:
                 total_hardship += 1 - agent.cooperativeness
             for agent in others:
-                virtual_tax_payed = math.log(agent.wealth) * self.eutax  # log edit
+                # virtual_tax_payed = math.log(agent.wealth) * self.eutax  # log edit
+                virtual_tax_payed = agent.wealth * self.eutax  # log edit
                 virtual_treasury = self.treasury + virtual_tax_payed
                 virtual_benefit = (1 / (total_hardship + 1)) * virtual_treasury
                 # hardship of every defector is = max hardship = 1
