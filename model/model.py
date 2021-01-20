@@ -123,12 +123,22 @@ class RegionModel(Model):
         if not members:
             self.running = False
             return
+
         for agent in members:
             # tax = math.log(agent.wealth) * self.eutax  # log test
             tax = agent.wealth * self.eutax
             agent.tax_payed = tax
             agent.wealth -= tax
             self.treasury += tax
+
+        elif self.eu_strategy == "default":
+            average_wealth = sum([m.wealth for m in members]) / self.member_count
+            for agent in members:
+                # tax = math.log(agent.wealth) * self.eutax  # log test
+                tax = average_wealth * self.eutax
+                agent.tax_payed = tax
+                agent.wealth -= tax
+                self.treasury += tax
 
 
 
@@ -149,6 +159,18 @@ class RegionModel(Model):
 
         elif self.eu_strategy == "hardship":
             total_hardship = 0
+            for agent in members:
+                total_hardship += 1 - agent.cooperativeness
+            for agent in members:
+                agent_benefit = ((1 - agent.cooperativeness) / total_hardship) * self.treasury
+                agent.wealth += agent_benefit
+                if agent_benefit + agent.trade_bonus > agent.tax_payed:
+                    agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
+                elif agent_benefit  + agent.trade_bonus < agent.tax_payed:
+                    agent.cooperativeness = max(agent.cooperativeness - self.tax_influence, -1)
+
+        elif self.eu_strategy == "capitalist":
+            total_wealth = 0
             for agent in members:
                 total_hardship += 1 - agent.cooperativeness
             for agent in members:
