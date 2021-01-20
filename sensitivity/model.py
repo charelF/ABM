@@ -41,6 +41,9 @@ class RegionModel(Model):
         self.grid = GeoSpace()
         self.running = True
 
+        # Gini coefficient
+        self.G = 0
+
         # set up grid
         AC = AgentCreator(RegionAgent, {"model": self})
         self.agents = AC.from_file("nuts_rg_60M_2013_lvl_2.geojson")
@@ -71,7 +74,8 @@ class RegionModel(Model):
             "member_wealth":"member_wealth",
             "other_eff":"other_eff",
             "total_eff":"total_eff",
-            "member_eff":"member_eff"
+            "member_eff":"member_eff",
+            "G":"G"
         })
         self.datacollector.collect(self)
 
@@ -90,10 +94,14 @@ class RegionModel(Model):
         self.member_eff = 0
         self.other_eff = 0
         self.total_eff = 0
+        wealths = np.zeros((320))
 
         total_cooperativeness = 0
 
-        for agent in self.agents:
+        for i, agent in enumerate(self.agents):
+            
+            wealths[i] = agent.wealth
+
             if agent.strategy == 1:
                 self.member_wealth += agent.wealth
                 self.member_eff += agent.efficiency
@@ -115,7 +123,14 @@ class RegionModel(Model):
         self.member_eff = self.member_eff / max(self.member_count, 1)
         self.other_eff = self.other_eff / max(self.other_count, 1)
         self.total_eff = self.total_eff / 320
-
+        
+        self.G = 0
+        for wealth_i in wealths:
+            for wealth_j in wealths:
+                self.G += abs(wealth_i - wealth_j)
+        
+        self.G /= (320**2 * np.sum(wealths))
+        print(self.G)
 
 
     def collect_taxes(self):
@@ -171,8 +186,6 @@ class RegionModel(Model):
     def compute_virtual_benefits(self):
         others = [agent for agent in self.agents if agent.strategy == 2]
         members = [agent for agent in self.agents if agent.strategy == 1]
-        print(self.eu_strategy)
-        print('x')
         
         if not members or not others:
             self.running = False
