@@ -52,9 +52,15 @@ class RegionModel(Model):
             cooperativeness = random.uniform(-1, 1)
             agent.cooperativeness = cooperativeness
             agent.strategy = 1 if cooperativeness > 0 else 2
-            agent.wealth = 10  # to test out log we cant have it be 1
+            agent.wealth = random.gauss(mu=10, sigma=2)
+            
+            # if self.max_eff <= 0:
+            #     agent.efficiency = 0
+            # elif: 
+            # else:
+            else: agent.efficiency = 1 + random.expovariate(lambd=1/self.max_eff)
             # agent.efficiency = max(random.random() * self.max_eff * , 0.0000001)
-            agent.efficiency = random.uniform(1, ((self.max_eff - 1) * 2)+1)
+            # agent.efficiency = random.uniform(1, ((self.max_eff - 1) * 2)+1)
             # agent.efficiency = random.uniform()
             # agent.efficiency = agent.SHAPE_AREA * max_eff
             agent.tax = 0
@@ -73,6 +79,7 @@ class RegionModel(Model):
             "total_eff":"total_eff",
             "member_eff":"member_eff"
         })
+        self.compute_statistics()
         self.datacollector.collect(self)
 
 
