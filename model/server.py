@@ -24,25 +24,25 @@ model_params = {
         "checkbox", "International_Trade", value=True
     ),
     "efficiency_stdev": UserSettableParameter(
-        "slider", "Standard Deviation Efficiency (mean = 1)", 0.1, 0, 5, 0.01
+        "slider", "STDev of efficiency (mean = 1)", 0.1, 0, 3, 0.01
     ),
     "eu_tax": UserSettableParameter(
-        "slider", "Tax of EU per round", 0.1, 0, 1, 0.001
+        "slider", "EU Tax (percentage of wealth)", 0.1, 0, 1, 0.001
     ),
     "neighbor_influence": UserSettableParameter(
-        "slider", "neighbor_influence", 0, 0, 0.2, 0.01
+        "slider", "Neighbor Influence (step size)", 0, 0, 0.2, 0.01
     ),
     "tax_influence": UserSettableParameter(
-        "slider", "tax_influence", 0.1, 0, 0.2, 0.01
+        "slider", "Tax/Benefit influence (step size)", 0.1, 0, 0.2, 0.01
     ),
     "member_trade_multiplier": UserSettableParameter(
-    "slider", "member_trade_multiplier", 2, 0, 20, 0.001
+    "slider", "Member trade advantage (multiplier of wealth)", 1.1, 0.5, 3, 0.01
     ),
     "randomness": UserSettableParameter(
-    "slider", "randomness", 0, 0, 1, 0.001231441
+    "slider", "randomness (step size)", 0, 0, 1, 0.01
     ),
     "benefit_distribution": UserSettableParameter(
-    "slider", "Benefit distribution", 1, 0.8, 1.2, 0.0001
+    "slider", "Benefit distribution (multiplier of tax payed)", 1, 0.8, 1.2, 0.001
     ),
 }
 

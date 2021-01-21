@@ -48,7 +48,7 @@ class RegionModel(Model):
             agent.cooperativeness = cooperativeness
             agent.strategy = 1 if cooperativeness > 0 else 2
             agent.wealth = random.gauss(mu=10, sigma=2)
-            agent.efficiency = abs(random.gauss(mu=1, sigma=self.efficiency_stdev))
+            agent.efficiency = abs(random.gauss(mu=1.5, sigma=self.efficiency_stdev))
             agent.tax = 0
             agent.trade_bonus = 0
         

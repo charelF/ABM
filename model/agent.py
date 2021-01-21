@@ -84,8 +84,8 @@ class RegionAgent(GeoAgent):
 
 
     def natural_growth(self):
-        step_efficiency = abs(self.efficiency + random.gauss(mu=0, sigma=self.model.efficiency_stdev/5))
-        self.wealth += math.log(self.wealth) * self.efficiency
+        step_efficiency = abs(self.efficiency + random.gauss(mu=0, sigma=self.model.efficiency_stdev/4))
+        self.wealth += math.log(self.wealth) * step_efficiency
 
 
 
