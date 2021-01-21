@@ -12,8 +12,8 @@ class RegionAgent(GeoAgent):
     def __init__(self, unique_id, model, shape):
         super().__init__(unique_id, model, shape)
         self.wealth = None
-        self.cooperativeness = None  # between -1 and 1
-        self.strategy = None  # 1 = cooperate, 2 = defect
+        self.cooperativeness = None
+        self.strategy = None
         self.efficiency = None
         self.has_traded = False
         self.tax_payed = 0
@@ -84,7 +84,7 @@ class RegionAgent(GeoAgent):
 
 
     def natural_growth(self):
-        step_efficiency = abs(self.efficiency + random.gauss(mu=0, sigma=self.model.efficiency_stdev))
+        step_efficiency = abs(self.efficiency + random.gauss(mu=0, sigma=self.model.efficiency_stdev/5))
         self.wealth += math.log(self.wealth) * self.efficiency
 
 
