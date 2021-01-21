@@ -20,35 +20,29 @@ from colormap import rgb2hex
 
 
 model_params = {
-    # "basic_trade_reward" : UserSettableParameter(
-    #     "slider", "Basic trading reward", 0, 0, 0.02, 0.001
-    # ),
-    # "member_trade_reward" : UserSettableParameter(
-    #     "slider", "Member trading reward", 0, 0, 0.02, 0.001
-    # ),
     "international_trade" : UserSettableParameter(
         "checkbox", "International_Trade", value=True
     ),
-    "max_eff": UserSettableParameter(
-        "slider", "Maximum efficiency", 0, 0, 4, 0.001
+    "efficiency_stdev": UserSettableParameter(
+        "slider", "Standard Deviation Efficiency (mean = 1)", 0.1, 0, 5, 0.01
     ),
-    "eutax": UserSettableParameter(
+    "eu_tax": UserSettableParameter(
         "slider", "Tax of EU per round", 0.1, 0, 1, 0.001
     ),
     "neighbor_influence": UserSettableParameter(
         "slider", "neighbor_influence", 0, 0, 0.2, 0.01
     ),
     "tax_influence": UserSettableParameter(
-        "slider", "tax_influence", 0, 0, 0.2, 0.01
+        "slider", "tax_influence", 0.1, 0, 0.2, 0.01
     ),
     "member_trade_multiplier": UserSettableParameter(
-    "slider", "member_trade_multiplier", 1.1, 0, 20, 0.001
+    "slider", "member_trade_multiplier", 2, 0, 20, 0.001
     ),
     "randomness": UserSettableParameter(
     "slider", "randomness", 0, 0, 1, 0.001231441
     ),
-    "tax_distribution": UserSettableParameter(
-    "slider", "tax distribution", 1, 0.8, 1.2, 0.0001
+    "benefit_distribution": UserSettableParameter(
+    "slider", "Benefit distribution", 1, 0.8, 1.2, 0.0001
     ),
 }
 

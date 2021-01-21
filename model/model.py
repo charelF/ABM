@@ -9,22 +9,17 @@ import numpy as np
 import pprint
 
 class RegionModel(Model):
-    def __init__(self,
-                # basic_trade_reward, member_trade_reward,
-                international_trade, max_eff, eutax, neighbor_influence,
-                tax_influence, member_trade_multiplier, randomness, tax_distribution):
+    def __init__(self, international_trade, efficiency_stdev, eu_tax, neighbor_influence,
+                tax_influence, member_trade_multiplier, randomness, benefit_distribution):
 
-        # set up parameters
-        # self.basic_trade_reward = basic_trade_reward
-        # self.member_trade_reward = member_trade_reward
         self.international_trade = international_trade
-        self.max_eff = max_eff
-        self.eutax = eutax
+        self.efficiency_stdev = efficiency_stdev
+        self.eu_tax = eu_tax
         self.neighbor_influence = neighbor_influence
         self.tax_influence = tax_influence
         self.member_trade_multiplier = member_trade_multiplier
         self.randomness = randomness
-        self.tax_distribution = tax_distribution
+        self.benefit_distribution = benefit_distribution
 
         # initialise other attributes
         self.member_count = 0
@@ -53,19 +48,9 @@ class RegionModel(Model):
             agent.cooperativeness = cooperativeness
             agent.strategy = 1 if cooperativeness > 0 else 2
             agent.wealth = random.gauss(mu=10, sigma=2)
-            
-            # if self.max_eff <= 0:
-            #     agent.efficiency = 0
-            # elif: 
-            # else:
-            else: agent.efficiency = 1 + random.expovariate(lambd=1/self.max_eff)
-            # agent.efficiency = max(random.random() * self.max_eff * , 0.0000001)
-            # agent.efficiency = random.uniform(1, ((self.max_eff - 1) * 2)+1)
-            # agent.efficiency = random.uniform()
-            # agent.efficiency = agent.SHAPE_AREA * max_eff
+            agent.efficiency = abs(random.gauss(mu=1, sigma=self.efficiency_stdev))
             agent.tax = 0
             agent.trade_bonus = 0
-            # agent.trade_bonus = 0
         
         # set up datacollector
         self.datacollector = DataCollector({
@@ -132,8 +117,7 @@ class RegionModel(Model):
             return
 
         for agent in members:
-            # tax = math.log(agent.wealth) * self.eutax  # log test
-            tax = agent.wealth * self.eutax
+            tax = agent.wealth * self.eu_tax
             agent.tax_payed = tax
             agent.wealth -= tax
             self.treasury += tax
@@ -146,18 +130,16 @@ class RegionModel(Model):
             self.running = False
             return
 
-        benefits_total = sum([self.tax_distribution * agent.tax_payed for agent in members])
+        benefits_total = sum([self.benefit_distribution * agent.tax_payed for agent in members])
         difference = self.treasury - benefits_total
         difference_per_capita = difference / self.member_count
 
         for agent in members:
-            agent_benefit = (self.tax_distribution * agent.tax_payed) + difference_per_capita
+            agent_benefit = (self.benefit_distribution * agent.tax_payed) + difference_per_capita
             agent.wealth += agent_benefit
-            
             self.treasury -= agent_benefit
-            # print(f"{agent} has payed {agent.tax_payed:.1f} tax, ( their proportional share is {self.tax_distribution * agent.tax_payed:.1f}). diff {difference_per_capita:.1f}. benefit {agent_benefit:.1f}. \n")
 
-            if agent.wealth <= 1:
+            if agent.wealth <= 1:  # to avoid negative wealth (since we take log(wealth))
                 agent.wealth = 10
 
             if agent_benefit + agent.trade_bonus > agent.tax_payed:
@@ -177,15 +159,15 @@ class RegionModel(Model):
             self.running = False
             return
 
-        benefits_total = sum([self.tax_distribution * agent.tax_payed for agent in members])
+        benefits_total = sum([self.benefit_distribution * agent.tax_payed for agent in members])
 
         for agent in others:
-            virtual_tax_payed = agent.wealth * self.eutax
+            virtual_tax_payed = agent.wealth * self.eu_tax
             virtual_treasury = self.treasury + virtual_tax_payed
-            virtual_benefits_total = benefits_total + (self.tax_distribution * virtual_tax_payed)
+            virtual_benefits_total = benefits_total + (self.benefit_distribution * virtual_tax_payed)
             virtual_difference = virtual_treasury - virtual_benefits_total
             virtual_difference_per_capita = virtual_difference / (self.member_count + 1)
-            virtual_benefit = (self.tax_distribution * virtual_tax_payed) + virtual_difference_per_capita
+            virtual_benefit = (self.benefit_distribution * virtual_tax_payed) + virtual_difference_per_capita
 
             if virtual_benefit + agent.trade_bonus > virtual_tax_payed:
                 agent.cooperativeness = min(agent.cooperativeness + self.tax_influence, 1)
@@ -197,13 +179,9 @@ class RegionModel(Model):
     def step(self):
         for agent in self.agents: agent.has_traded = False
         self.round += 1
-
-        self.schedule.step()
-        
+        self.schedule.step()  # step agents
         self.compute_statistics()  # have to be computed here since their values are used
-
         self.collect_taxes()
-        self.compute_virtual_benefits()  # has to be executed first since it uses self.treasury()
+        self.compute_virtual_benefits()  # has to be executed before distribute_benefits since it uses self.treasury()
         self.distribute_benefits()
-
         self.datacollector.collect(self)

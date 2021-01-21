@@ -21,69 +21,34 @@ class RegionAgent(GeoAgent):
 
 
     def CC(self, neighbor):
-        # self.wealth += self.model.member_trade_reward * self.wealth
-        # neighbor.wealth += self.model.member_trade_reward * neighbor.wealth
-        # self.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        # neighbor.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
         self.wealth += math.log((self.wealth + neighbor.wealth) / 2) * self.model.member_trade_multiplier
         neighbor.wealth += math.log((self.wealth + neighbor.wealth) / 2) * self.model.member_trade_multiplier
         self.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
         neighbor.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
-        # self.wealth += ((self.wealth + neighbor.wealth) / 2000) * self.model.member_trade_multiplier
-        # neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000) * self.model.member_trade_multiplier
-        # self.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
-        # neighbor.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
         
 
 
     def CD(self, neighbor):
-        # self.wealth += self.model.basic_trade_reward * self.wealth
-        # neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        # neighbor.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
-        # self.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  self.wealth
         self.wealth += math.log((self.wealth + neighbor.wealth) / 2)
         neighbor.wealth += math.log((self.wealth + neighbor.wealth) / 2)
         self.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
         neighbor.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
-        # self.wealth += ((self.wealth + neighbor.wealth) / 2000)
-        # neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000)
-        # self.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
-        # neighbor.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
-
-
+        
 
 
     def DC(self, neighbor):
-        # self.wealth += self.model.basic_trade_reward * self.wealth
-        # neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        # self.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        # neighbor.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * neighbor.wealth
         self.wealth += math.log((self.wealth + neighbor.wealth) / 2)
         neighbor.wealth += math.log((self.wealth + neighbor.wealth) / 2)
         self.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
         neighbor.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
-        # self.wealth += ((self.wealth + neighbor.wealth) / 2000)
-        # neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000)
-        # self.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
-        # neighbor.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
-
-
-
+        
 
 
     def DD(self, neighbor):
-        # self.wealth += self.model.basic_trade_reward * self.wealth
-        # neighbor.wealth += self.model.basic_trade_reward * neighbor.wealth
-        # self.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) * self.wealth
-        # neighbor.trade_bonus = (self.model.member_trade_reward - self.model.basic_trade_reward) *  neighbor.wealth
         self.wealth += math.log((self.wealth + neighbor.wealth) / 2)
         neighbor.wealth += math.log((self.wealth + neighbor.wealth) / 2)
         self.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
         neighbor.trade_bonus = math.log((self.wealth + neighbor.wealth) / 2) * (self.model.member_trade_multiplier - 1)
-        # self.wealth += ((self.wealth + neighbor.wealth) / 2000)
-        # neighbor.wealth += ((self.wealth + neighbor.wealth) / 2000)
-        # self.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
-        # neighbor.trade_bonus = ((self.wealth + neighbor.wealth) / 2000) * (self.model.member_trade_multiplier - 1)
 
 
 
@@ -119,7 +84,7 @@ class RegionAgent(GeoAgent):
 
 
     def natural_growth(self):
-        # self.wealth += math.log(self.wealth) * self.efficiency
+        step_efficiency = abs(self.efficiency + random.gauss(mu=0, sigma=self.model.efficiency_stdev))
         self.wealth += math.log(self.wealth) * self.efficiency
 
 
