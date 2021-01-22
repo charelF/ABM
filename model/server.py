@@ -39,7 +39,7 @@ model_params = {
     "slider", "Member trade advantage (multiplier of wealth)", 1.1, 0.5, 3, 0.01
     ),
     "randomness": UserSettableParameter(
-    "slider", "randomness (step size)", 0, 0, 1, 0.01
+    "slider", "randomness (step size)", 0, 0, 0.2, 0.01
     ),
     "benefit_distribution": UserSettableParameter(
     "slider", "Benefit distribution (multiplier of tax payed)", 1, 0.8, 1.2, 0.001

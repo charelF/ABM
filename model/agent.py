@@ -4,8 +4,6 @@ from mesa.time import RandomActivation
 from mesa_geo.geoagent import GeoAgent, AgentCreator
 from mesa_geo import GeoSpace
 import random
-import numpy as np
-from utilities import *
 import math
 
 class RegionAgent(GeoAgent):
@@ -90,7 +88,7 @@ class RegionAgent(GeoAgent):
 
 
     def choose_strategy(self):
-        decision = self.cooperativeness + random.uniform(-self.model.randomness, self.model.randomness)
+        decision = self.cooperativeness  # + random.uniform(-self.model.randomness, self.model.randomness)
         if decision > 0: 
             self.strategy = 1
         else:
@@ -106,7 +104,6 @@ class RegionAgent(GeoAgent):
                 trade_partner = random.choice([agent for agent in self.model.grid.get_neighbors(self) if agent.has_traded == False])
             except:
                 trade_partner = random.choice([agent for agent in self.model.agents if agent.has_traded == False])
-    
         return trade_partner
         
 
