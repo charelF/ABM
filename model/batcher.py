@@ -14,6 +14,7 @@ def run(i):
     m.compute_statistics()
     m.datacollector.collect(m)
     outcomes = m.datacollector.get_model_vars_dataframe()
+    print(outcomes)
     with open(r"data.csv","a") as f:
         #print(len(df.iloc[i, 1:8]))
         # Skip first international trade parameters
