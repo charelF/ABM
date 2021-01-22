@@ -19,7 +19,7 @@ def run(i):
         # Skip first international trade parameters
         f.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(i, int_trade,*df.iloc[i, 1:7], *outcomes.iloc[0]))
 
-max_steps = 10
+max_steps = 1000
 df = pd.read_csv('out.csv')
 batches = int(sys.argv[1])
 batch = int(sys.argv[2])
