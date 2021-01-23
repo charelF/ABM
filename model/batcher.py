@@ -17,11 +17,10 @@ def timing(f):
     return wrap
 '''
 
-@timing
+#@timing
 def run(i):
 
     # Do simulation
-    print(*df.iloc[i, 1:7])
     m = RegionModel(int_trade, *df.iloc[i, 1:7])
     for k in range(max_steps):
             m.step()
@@ -30,10 +29,7 @@ def run(i):
     m.compute_statistics()
     m.datacollector.collect(m)
     outcomes = m.datacollector.get_model_vars_dataframe()
-    print(outcomes)
     with open(r"data.csv","a") as f:
-        #print(len(df.iloc[i, 1:8]))
-        # Skip first international trade parameters
         f.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(i, int_trade,*df.iloc[i, 1:7], *outcomes.iloc[0]))
 
 max_steps = 1000
