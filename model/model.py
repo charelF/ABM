@@ -69,7 +69,7 @@ class RegionModel(Model):
             "stdev_agent_cooperativeness":"stdev_agent_cooperativeness",
         })
         self.compute_statistics()
-        self.datacollector.collect(self)
+        # self.datacollector.collect(self)
 
 
 
@@ -121,13 +121,13 @@ class RegionModel(Model):
         self.other_eff = self.other_eff / max(self.other_count, 1)
         self.total_eff = self.total_eff / 320
 
-        # self.gini_coefficient = 0
-        # total = 0
-        # for wealth_i in wealths:
-        #     for wealth_j in wealths:
-        #         total += abs(wealth_i - wealth_j)
+        self.gini_coefficient = 0
+        total = 0
+        for wealth_i in wealths:
+            for wealth_j in wealths:
+                total += abs(wealth_i - wealth_j)
         
-        # self.gini_coefficient = total / (320**2 * np.mean(wealths))
+        self.gini_coefficient = total / (320**2 * np.mean(wealths))
 
         self.stdev_agent_cooperativeness = float(np.std(list_cooperativeness))
 
@@ -207,5 +207,5 @@ class RegionModel(Model):
         self.collect_taxes()
         self.compute_virtual_benefits()  # has to be executed before distribute_benefits since it uses self.treasury()
         self.distribute_benefits()
-        self.compute_statistics()
-        self.datacollector.collect(self)
+        # self.compute_statistics()
+        # self.datacollector.collect(self)
