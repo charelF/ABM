@@ -123,14 +123,14 @@ class RegionModel(Model):
         self.other_eff = self.other_eff / max(self.other_count, 1)
         self.total_eff = self.total_eff / 320
 
-        self.gini_coefficient = 0
-        total = 0
-        for wealth_i in wealths:
-            for wealth_j in wealths:
-                total += abs(wealth_i - wealth_j)
+        # self.gini_coefficient = 0
+        # total = 0
+        # for wealth_i in wealths:
+        #     for wealth_j in wealths:
+        #         total += abs(wealth_i - wealth_j)
         
         # self.gini_coefficient = total / (320**2 * np.mean(wealths))
-        self.gini_coefficient = total / (self.member_count**2 * np.mean(wealths))
+        # self.gini_coefficient = total / (self.member_count**2 * np.mean(wealths))
 
         self.stdev_agent_cooperativeness = float(np.std(list_cooperativeness))
 
