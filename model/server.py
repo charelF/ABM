@@ -70,6 +70,7 @@ map_element = MapModule(schelling_draw, [57, 12], 3, 400, 800)
 type_chart = ChartModule([{"Label": 'other_count', "Color": "Tomato"},
                           {"Label": 'member_count', "Color": "RoyalBlue"}], 200, 500)
 payoff_chart = ChartModule([{"Label": 'average_cooperativeness', "Color": "Gold"}], 200, 500)
+gini_chart = ChartModule([{"Label": 'gini_coefficient', "Color": "Green"}], 200, 500)
 wealth_chart = ChartModule([
     {"Label": 'other_wealth', "Color": "Tomato"},
     {"Label": 'total_wealth', "Color": "Gold"},
@@ -81,6 +82,6 @@ eff_chart = ChartModule([
     {"Label": 'member_eff', "Color": "RoyalBlue"},
 ], 200, 500)
 server = ModularServer(
-    RegionModel, [map_element, type_chart, wealth_chart,eff_chart, payoff_chart], "Warring nations", model_params
+    RegionModel, [map_element, type_chart, gini_chart, wealth_chart,eff_chart, payoff_chart], "Warring nations", model_params
 )
 server.launch()

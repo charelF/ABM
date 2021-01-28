@@ -68,7 +68,8 @@ class RegionModel(Model):
             "gini_coefficient":"gini_coefficient",
             "stdev_agent_cooperativeness":"stdev_agent_cooperativeness",
         }
-        ,{"agent_cooperativeness": lambda a: a.cooperativeness})
+        # ,{"agent_cooperativeness": lambda a: a.cooperativeness}
+        )
         self.compute_statistics()
         self.datacollector.collect(self)
 
@@ -97,12 +98,12 @@ class RegionModel(Model):
         wealths = np.zeros((320))
 
         for i, agent in enumerate(self.agents):
-            # wealths[i] = agent.wealth
             total_cooperativeness += agent.cooperativeness
             list_cooperativeness.append(agent.cooperativeness)
 
+            wealths[i] = agent.wealth
+
             if agent.strategy == 1:
-                wealths[i] = agent.wealth
                 self.member_wealth += agent.wealth
                 self.member_eff += agent.efficiency
                 self.member_count += 1
@@ -123,14 +124,13 @@ class RegionModel(Model):
         self.other_eff = self.other_eff / max(self.other_count, 1)
         self.total_eff = self.total_eff / 320
 
-        # self.gini_coefficient = 0
-        # total = 0
-        # for wealth_i in wealths:
-        #     for wealth_j in wealths:
-        #         total += abs(wealth_i - wealth_j)
+        self.gini_coefficient = 0
+        total = 0
+        for wealth_i in wealths:
+            for wealth_j in wealths:
+                total += abs(wealth_i - wealth_j)
         
-        # self.gini_coefficient = total / (320**2 * np.mean(wealths))
-        # self.gini_coefficient = total / (self.member_count**2 * np.mean(wealths))
+        self.gini_coefficient = total / (320**2 * np.mean(wealths))
 
         self.stdev_agent_cooperativeness = float(np.std(list_cooperativeness))
 
