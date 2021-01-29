@@ -70,8 +70,8 @@ class RegionModel(Model):
         }
         # ,{"agent_cooperativeness": lambda a: a.cooperativeness}
         )
-        self.compute_statistics()
-        self.datacollector.collect(self)
+        # self.compute_statistics()
+        # self.datacollector.collect(self)
 
 
 
@@ -210,5 +210,5 @@ class RegionModel(Model):
         self.collect_taxes()
         self.compute_virtual_benefits()  # has to be executed before distribute_benefits since it uses self.treasury()
         self.distribute_benefits()
-        self.compute_statistics()
-        self.datacollector.collect(self)
+        # self.compute_statistics()
+        # self.datacollector.collect(self)
