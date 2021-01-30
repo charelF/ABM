@@ -16,6 +16,11 @@ Developed to answer the research question: *How can we sustain cooperation and e
 
 In the ```model``` directory, run the command ```mesa runserver``` or ```python server.py``` to launch the web-interace on localhost. The model can also be ran from a class by initialising it and then manually calling ```model.step()``` to progress it.
 
+## Web-Interface
+
+![screenshot of the web interface](web_interface_screenshot.png)
+
+
 ## Acknowledgment
 
 The model is an extension of the Schelling example from mesa geo: https://github.com/Corvince/mesa-geo
