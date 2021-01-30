@@ -7,6 +7,8 @@ import random
 from agent import *
 import numpy as np
 
+
+
 class RegionModel(Model):
     def __init__(self, international_trade, efficiency_stdev, eu_tax, neighbor_influence,
                 tax_influence, member_trade_multiplier, benefit_distribution):
@@ -17,7 +19,6 @@ class RegionModel(Model):
         self.neighbor_influence = neighbor_influence
         self.tax_influence = tax_influence
         self.member_trade_multiplier = member_trade_multiplier
-        # self.randomness = randomness
         self.benefit_distribution = benefit_distribution
 
         # initialise other attributes
@@ -55,28 +56,37 @@ class RegionModel(Model):
             agent.trade_bonus = 0
         
         # set up datacollector
-        self.datacollector = DataCollector({
-            "member_count": "member_count",
-            "other_count":"other_count",
-            "average_cooperativeness":"average_cooperativeness",
-            "other_wealth":"other_wealth",
-            "total_wealth":"total_wealth",
-            "member_wealth":"member_wealth",
-            "other_eff":"other_eff",
-            "total_eff":"total_eff",
-            "member_eff":"member_eff",
-            "gini_coefficient":"gini_coefficient",
-            "stdev_agent_cooperativeness":"stdev_agent_cooperativeness",
-        }
-        # ,{"agent_cooperativeness": lambda a: a.cooperativeness}
+        self.datacollector = DataCollector(
+            {
+                "member_count": "member_count",
+                "other_count":"other_count",
+                "average_cooperativeness":"average_cooperativeness",
+                "other_wealth":"other_wealth",
+                "total_wealth":"total_wealth",
+                "member_wealth":"member_wealth",
+                "other_eff":"other_eff",
+                "total_eff":"total_eff",
+                "member_eff":"member_eff",
+                "gini_coefficient":"gini_coefficient",
+                "stdev_agent_cooperativeness":"stdev_agent_cooperativeness",
+            },{
+                "agent_cooperativeness": lambda a: a.cooperativeness
+            }
         )
-        # self.compute_statistics()
-        # self.datacollector.collect(self)
+
+        # compute initial statistics
+        self.compute_statistics()
+        self.datacollector.collect(self)
 
 
 
     def compute_statistics(self):
-        # only used for datacollector
+        """
+            Used to compute statistics that are then later collected via the datacollector
+            Also used for the visualisation on the web interface
+            As some computations are slow it is safe to comment out calls to this method
+            during simulations IF there is no need to collect data
+        """
 
         self.member_count = 0
         self.other_count = 0
@@ -137,8 +147,14 @@ class RegionModel(Model):
 
 
     def collect_taxes(self):
+        """
+            Collects from each member of the union the EU tax, which is a percentage of their wealth
+            Subtracts this number from agents and ads it to the global treasury
+        """
+
         members = [agent for agent in self.agents if agent.strategy == 1]
         if not members:
+            # if no more members left, we stop the model
             self.running = False
             return
 
@@ -151,8 +167,17 @@ class RegionModel(Model):
 
 
     def distribute_benefits(self):
+        """
+            Distributes the wealth collected in the treasury among all the members and based on the
+            EU distribution policy, and makes members increase or decrease their cooperativeness based
+            on whether they made or lost money being in the EU
+            This method is supposed to be called after collect_taxes() as it assumes a filled treasury
+            The treasury is set to 0 for the next round
+        """
+
         members = [agent for agent in self.agents if agent.strategy == 1]
         if not members:
+            # if no more members left, we stop the model
             self.running = False
             return
 
@@ -178,6 +203,13 @@ class RegionModel(Model):
 
 
     def compute_virtual_benefits(self):
+        """
+            Computes the hypothetical tax payed and benefits received by an outsider (aka other)
+            This hypothetical amount is only used to have agents reconsider their cooperativeness
+            Supposed to be called between collect_taxes() and after compute_benefits() as it assumes
+            the treasury to be filled
+        """
+
         others = [agent for agent in self.agents if agent.strategy == 2]
         members = [agent for agent in self.agents if agent.strategy == 1]
 
@@ -188,6 +220,8 @@ class RegionModel(Model):
         benefits_total = sum([self.benefit_distribution * agent.tax_payed for agent in members])
 
         for agent in others:
+            # for each agents, all of these virtual values consider the hypothetical situation where
+            # the agent would be a member of the union.
             virtual_tax_payed = agent.wealth * self.eu_tax
             virtual_treasury = self.treasury + virtual_tax_payed
             virtual_benefits_total = benefits_total + (self.benefit_distribution * virtual_tax_payed)
@@ -203,12 +237,14 @@ class RegionModel(Model):
 
 
     def step(self):
-        for agent in self.agents: agent.has_traded = False
+        for agent in self.agents:
+            agent.has_traded = False
         self.round += 1
-        self.schedule.step()  # step agents
-        # self.compute_statistics()
+        self.schedule.step()  # execute the step() function of agents
         self.collect_taxes()
         self.compute_virtual_benefits()  # has to be executed before distribute_benefits since it uses self.treasury()
         self.distribute_benefits()
-        # self.compute_statistics()
-        # self.datacollector.collect(self)
+        # the following two lines of code can be commented out without influencing how the model behaves
+        # they are just used to collect and visualise data
+        self.compute_statistics()
+        self.datacollector.collect(self)
