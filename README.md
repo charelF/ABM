@@ -1,12 +1,10 @@
-Aleksander Janczewski (13401017), Charel Felten (13364022),Mario van Rooij (11607521), Mehmet Ege Arkin (11604808)
+Aleksander Janczewski, Charel Felten, Mario van Rooij, Mehmet Ege Arkin
 
 # Agent-based modelling
 
-Agent-based model to simulate EU cohesion policy.
+Agent-based model to simulate EU policy, wealth disparities and economic convergence.
 
-Developed to answer the research question: 
-
-> How can we sustain cooperation and economicconvergence in the European Union?
+Developed to answer the research question: *How can we sustain cooperation and economic convergence in the European Union?*
 
 ## Code
 
