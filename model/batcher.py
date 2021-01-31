@@ -1,26 +1,14 @@
+# Code for parallelization of the sensitivity analysis.
+# This is accompanied by para.sh
+
 import sys
 import pandas as pd
 from model import RegionModel
 
-from functools import wraps
-from time import time
-
-'''
-def timing(f):
-    @wraps(f)
-    def wrap(*args, **kw):
-        ts = time()
-        result = f(*args, **kw)
-        te = time()
-        print('func:%r args:[%r, %r] took: %2.4f sec' % (f.__name__, args, kw, te-ts))
-        return result
-    return wrap
-'''
-
-#@timing
 def run(i):
-
-    # Do simulation
+    '''
+    performs a single simulation of a system
+    '''
     m = RegionModel(int_trade, *df.iloc[i, 1:7])
     for k in range(max_steps):
             m.step()
