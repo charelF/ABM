@@ -1,2 +1,0 @@
-# ABM
-Agent-based modelling
