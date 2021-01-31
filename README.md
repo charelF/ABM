@@ -25,7 +25,7 @@ Developed to answer the research question: *How can we sustain cooperation and e
 
 ## Execution
 
-In the ```model``` directory, run the command ```mesa runserver``` or ```python server.py``` to launch the web-interace on localhost. The model can also be ran from a class by initialising it and then manually calling ```model.step()``` to progress it.
+In the base directory, run the command ```mesa runserver``` or ```python server.py``` to launch the web-interace on localhost. The model can also be ran from a class by initialising it and then manually calling ```model.step()``` to progress it.
 
 ## Sensitivity analysis
 

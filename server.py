@@ -3,9 +3,7 @@ from mesa.visualization.modules import ChartModule, TextElement
 from mesa.visualization.UserParam import UserSettableParameter
 from model import RegionModel
 from mesa_geo.visualization.MapModule import MapModule
-from utilities import get_color
 import numpy as np
-from colormap import rgb2hex
 
 model_params = {
     "international_trade" : UserSettableParameter(
