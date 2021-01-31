@@ -45,6 +45,10 @@ After the 'out.csv' file has been created close the notebook.
 
 The model is an extension of the Schelling example from mesa geo: https://github.com/Corvince/mesa-geo
 
+## Source code
+
+All contributions can be seen across the different branches online at https://github.com/charelF/ABM
+
 
 
 
