@@ -17,7 +17,7 @@ def run(i):
     m.compute_statistics()
     m.datacollector.collect(m)
     outcomes = m.datacollector.get_model_vars_dataframe()
-    with open(r"data.csv","a") as f:
+    with open(r"data_int_on.csv","a") as f:
         f.write("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}\n".format(i, int_trade,*df.iloc[i, 1:7], *outcomes.iloc[0]))
 
 max_steps = 1000
