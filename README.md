@@ -8,6 +8,10 @@ Developed to answer the research question: *How can we sustain cooperation and e
 
 ## Files
 
+### Report
+
+- ```ABM.pdf```: report
+
 ### Model
 
 - ```model.py```: contains the model class
